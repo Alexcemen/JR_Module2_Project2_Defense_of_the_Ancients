@@ -6,8 +6,14 @@ import org.example.models.Coordinates;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface Attachable {
-    default void attack(AbstractAnimal animal, List<AbstractAnimal> animals) {
+public class AnimalAttacker {
+    private List<AbstractAnimal> animals;
+
+    public AnimalAttacker(List<AbstractAnimal> animals) {
+        this.animals = animals;
+    }
+
+    public void attack(AbstractAnimal animal) {
         int powerAttack = animal.getPowerAttack();
         List<AbstractAnimal> targetsForAttack = findTargetsForAttack(animal, animals);
         if (!targetsForAttack.isEmpty()) {
@@ -20,7 +26,7 @@ public interface Attachable {
         }
     }
 
-    default List<AbstractAnimal> findTargetsForAttack(AbstractAnimal animal, List<AbstractAnimal> animals) {
+    private List<AbstractAnimal> findTargetsForAttack(AbstractAnimal animal, List<AbstractAnimal> animals) {
         List<AbstractAnimal> targets = new ArrayList<>();
         int currentX = animal.getCoordinates().x();
         int currentY = animal.getCoordinates().y();

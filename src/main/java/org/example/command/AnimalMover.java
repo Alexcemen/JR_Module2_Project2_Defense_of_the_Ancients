@@ -18,14 +18,13 @@ public class AnimalMover {
         this.animals = animals;
     }
 
-    public void move() {
-        for (AbstractAnimal animal : animals) {
-            Coordinates newCoordinates;
-            do {
-                newCoordinates = getNewCoordinates(animal.getCoordinates());
-            } while (!isCorrectCoordinates(newCoordinates) || !isCellEmpty(newCoordinates));
-            animal.setCoordinates(newCoordinates);
-        }
+    public void move(AbstractAnimal animal) {
+        Coordinates newCoordinates;
+        do {
+            newCoordinates = getNewCoordinates(animal.getCoordinates());
+        } while (!isCorrectCoordinates(newCoordinates) || !isCellEmpty(newCoordinates));
+        animal.setCoordinates(newCoordinates);
+
     }
 
     private Coordinates getNewCoordinates(Coordinates currentCoordinates) {

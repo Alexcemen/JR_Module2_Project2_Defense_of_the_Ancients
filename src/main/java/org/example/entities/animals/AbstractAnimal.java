@@ -1,10 +1,9 @@
 package org.example.entities.animals;
 
-import org.example.command.Attachable;
 import org.example.models.Coordinates;
 
 
-public abstract class AbstractAnimal implements Attachable {
+public abstract class AbstractAnimal {
     private Coordinates coordinates;
     private int health;
     private int powerAttack;

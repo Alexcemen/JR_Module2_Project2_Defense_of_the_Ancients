@@ -3,6 +3,7 @@ package org.example;
 
 import com.javarush.engine.cell.Color;
 import com.javarush.engine.cell.Game;
+import org.example.command.AnimalAttacker;
 import org.example.command.AnimalMover;
 import org.example.command.EntitiesFabric;
 import org.example.config.Config;
@@ -18,6 +19,7 @@ public class GameSolution extends Game {
     private EntitiesFabric entitiesFabric;
     private List<AbstractAnimal> animalsList;
     private AnimalMover animalMover;
+    private AnimalAttacker animalAttacker;
     private ValueCells valueCells;
 
     @Override
@@ -27,6 +29,7 @@ public class GameSolution extends Game {
         entitiesFabric = new EntitiesFabric(config);
         animalsList = entitiesFabric.getAnimalsList();
         animalMover = new AnimalMover(config, animalsList);
+        animalAttacker = new AnimalAttacker(animalsList);
         valueCells = new ValueCells(config);
         setScreenSize(SIDE, SIDE);
         setTurnTimer(config.turnTimer);
@@ -35,13 +38,11 @@ public class GameSolution extends Game {
 
     @Override
     public void onTurn(int step) {
-        animalMover.move();
-
+        //заменить цикл на executor
         for (AbstractAnimal animal : animalsList) {
-            animal.attack(animal, animalsList);
-            System.out.println(animal.getHealth());
+            animalMover.move(animal);
+            animalAttacker.attack(animal);
         }
-
     }
 
     public void draw() {
@@ -81,17 +82,21 @@ public class GameSolution extends Game {
     }
 
     private void updateAnimalsOnField(List<AbstractAnimal> animals, int colorNumber) {
+        //Татьяна, когда я писал вам сообщение, я хотел, чтобы этот метод отрисовывал поле
+        //и каждые 100 millis менял цвет фона
         Color color;
         if (colorNumber == 1) {
             color = Color.PINK;
         } else {
             color = Color.AQUA;
         }
+
         animals.forEach(animal -> {
             setCellValueEx(
                     animal.getCoordinates().x(),
                     animal.getCoordinates().y(),
-                    color,
+                    getHealthColor(animal.getHealth()), //эту строчку нужно заменить на color
+//                    color,
                     animal.getImage()
             );
         });
@@ -118,5 +123,20 @@ public class GameSolution extends Game {
                 );
             }
         }
+    }
+
+    private Color getHealthColor(int health) {
+        int group = health / 10;
+        return switch (group) {
+            case 10 -> Color.LIME;
+            case 9 -> Color.GREENYELLOW;
+            case 8 -> Color.YELLOWGREEN;
+            case 7 -> Color.YELLOW;
+            case 6 -> Color.GOLD;
+            case 5 -> Color.ORANGE;
+            case 4 -> Color.DARKORANGE;
+            case 3, 2 -> Color.ORANGERED;
+            default -> Color.RED;
+        };
     }
 }
