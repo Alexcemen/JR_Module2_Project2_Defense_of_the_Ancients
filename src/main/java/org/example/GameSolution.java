@@ -12,54 +12,44 @@ import java.util.List;
 
 public class GameSolution extends Game {
     private int SIDE;
+    private Config config;
+    private EntitiesFabric entitiesFabric;
+    private List<AbstractAnimal> animalsList;
     private AnimalMover animalMover;
-    private List<AbstractAnimal> animals;
-
+    private ValueCells valueCells;
 
     @Override
     public void initialize() {
-        Config config = Config.load();
+        config = Config.load();
         SIDE = config.sideField;
-//        valueCellsArray = new ValueCell[SIDE][SIDE];
+        entitiesFabric = new EntitiesFabric(config);
+        animalsList = entitiesFabric.getAnimalsList();
+        animalMover = new AnimalMover(config, animalsList);
+        valueCells = new ValueCells(config);
+
+
         setScreenSize(SIDE, SIDE);
-        ValueCells valueCells = new ValueCells(config);
+        drawScene(valueCells);
 
-        EntitiesFabric entitiesFabric = new EntitiesFabric(config);
-        animals = entitiesFabric.createListAnimals();
-        animalMover = new AnimalMover(config, animals);
-        updateValueCellsArray(valueCells);
+        setTurnTimer(config.turnTimer);
 
-//        setTurnTimer(config.turnTimer);
-
-
-
-//        for (ValueCell[] valueCells : valueCellsArray) {
-//            for (ValueCell valueCell : valueCells) {
-//                System.out.println(
-//                        "x=" + valueCell.getCoordinates().x() +
-//                                " y=" + valueCell.getCoordinates().y() +
-//                                " color=" + valueCell.getColor() +
-//                                " value=" + valueCell.getValue()
-//                );
-//            }
-//        }
 
     }
 
-//    @Override
-//    public void onTurn(int step) {
-//        animalMover.move();
-//        clear();
-//        drawAnimals(animals);
-//    }
+    @Override
+    public void onTurn(int step) {
+        animalMover.move();
+        clear();
+        updateAnimalsOnField(animalsList);
+    }
 
-//    private void clear() {
-//        for (int i = 0; i < gameField.length; i++) {
-//            for (int j = 0; j < gameField.length; j++) {
-//                setCellValueEx(i, j, Color.WHITE, "");
-//            }
-//        }
-//    }
+    private void clear() {
+        for (int i = 0; i < SIDE; i++) {
+            for (int j = 0; j < SIDE; j++) {
+                setCellValueEx(i, j, Color.WHITE, "");
+            }
+        }
+    }
 
 
     private void updateValueCellsArray(ValueCells valueCells) {
@@ -84,9 +74,22 @@ public class GameSolution extends Game {
     }
 
     private void drawScene(ValueCells valueCells) {
-        updateAnimalsOnField(animals);
+        updateAnimalsOnField(animalsList);
         updateValueCellsArray(valueCells);
     }
 
+
+    private void soutCells(ValueCells valueCells) {
+        for (ValueCell[] valueCellsArray : valueCells.getValueCells()) {
+            for (ValueCell valueCell : valueCellsArray) {
+                System.out.println(
+                        "x=" + valueCell.getCoordinates().x() +
+                                " y=" + valueCell.getCoordinates().y() +
+                                " color=" + valueCell.getColor() +
+                                " value=" + valueCell.getValue()
+                );
+            }
+        }
+    }
 
 }

@@ -1,10 +1,7 @@
 package org.example.entities.animals;
 
-import org.example.AnimalMover;
 import org.example.models.Coordinates;
-import org.example.models.Direction;
 
-import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class AbstractAnimal {
     private Coordinates coordinates;
@@ -48,6 +45,14 @@ public abstract class AbstractAnimal {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public void attack(AbstractAnimal target) {
+        target.takeDamage(powerAttack);
+    }
+
+    public void takeDamage(int amount) {
+        this.health -= amount;
     }
 
 }

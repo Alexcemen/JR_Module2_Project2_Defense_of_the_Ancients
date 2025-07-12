@@ -12,10 +12,11 @@ import java.util.concurrent.ThreadLocalRandom;
 public class EntitiesFabric {
 
     private List<AbstractAnimal> animals;
-    private Config config;
+    private final Config config;
 
     public EntitiesFabric(Config config) {
         this.config = config;
+        animals = createListAnimals();
     }
 
     public List<AbstractAnimal> createListAnimals() {
@@ -27,6 +28,10 @@ public class EntitiesFabric {
             randomAnimal.setCoordinates(pollOne(randomCoordinatesSet));
             animals.add(randomAnimal);
         }
+        return animals;
+    }
+
+    public List<AbstractAnimal> getAnimalsList() {
         return animals;
     }
 

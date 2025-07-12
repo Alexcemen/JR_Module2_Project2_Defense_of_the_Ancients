@@ -6,22 +6,29 @@ import org.example.models.Coordinates;
 import org.example.models.ValueCell;
 
 public class ValueCells {
-    private ValueCell[][] valueCellArray;
-    private Config config;
+    private ValueCell[][] valueCells;
 
     public ValueCells(Config config) {
-        this.config = config;
-        valueCellArray = new ValueCell[config.sideField][config.sideField];
+        valueCells = new ValueCell[config.sideField][config.sideField];
+        for (int x = 0; x < config.sideField; x++) {
+            for (int y = 0; y < config.sideField; y++) {
+                valueCells[x][y] = new ValueCell(x, y, Color.WHITE, "");
+            }
+        }
     }
 
     public void updateValueCell(int x, int y, Color color, String value) {
-        valueCellArray[x][y].setColor(color);
-        valueCellArray[x][y].setValue(value);
+        valueCells[x][y].setColor(color);
+        valueCells[x][y].setValue(value);
     }
 
     public ValueCell getValueCell(Coordinates coordinates) {
         int x = coordinates.x();
         int y = coordinates.y();
-        return valueCellArray[x][y];
+        return valueCells[x][y];
+    }
+
+    public ValueCell[][] getValueCells() {
+        return valueCells;
     }
 }
