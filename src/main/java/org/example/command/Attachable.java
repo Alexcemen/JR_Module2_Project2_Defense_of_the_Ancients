@@ -13,6 +13,9 @@ public interface Attachable {
         if (!targetsForAttack.isEmpty()) {
             for (AbstractAnimal target : targetsForAttack) {
                 takeDamage(powerAttack, target);
+                if (target.getHealth() <= 0) {
+                    animals.remove(target);
+                }
             }
         }
     }
