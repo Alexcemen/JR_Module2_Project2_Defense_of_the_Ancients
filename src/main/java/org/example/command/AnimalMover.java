@@ -1,4 +1,4 @@
-package org.example;
+package org.example.command;
 
 import org.example.config.Config;
 import org.example.entities.animals.AbstractAnimal;

@@ -3,6 +3,8 @@ package org.example;
 
 import com.javarush.engine.cell.Color;
 import com.javarush.engine.cell.Game;
+import org.example.command.AnimalMover;
+import org.example.command.EntitiesFabric;
 import org.example.config.Config;
 import org.example.data.ValueCells;
 import org.example.entities.animals.*;
