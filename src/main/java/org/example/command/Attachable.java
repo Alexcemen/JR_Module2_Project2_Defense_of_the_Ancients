@@ -1,31 +1,23 @@
 package org.example.command;
 
-import org.example.config.Config;
-import org.example.data.ValueCells;
 import org.example.entities.animals.AbstractAnimal;
 import org.example.models.Coordinates;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AnimalInteraction {
-
-    private Config config;
-    private AbstractAnimal animal;
-    private ValueCells valueCells;
-    private List<AbstractAnimal> animals;
-
-    public AnimalInteraction(Config config,
-                             ValueCells valueCells,
-                             AbstractAnimal animal,
-                             List<AbstractAnimal> animals) {
-        this.config = config;
-        this.valueCells = valueCells;
-        this.animal = animal;
-        this.animals = animals;
+public interface Attachable {
+    default void attack(AbstractAnimal animal, List<AbstractAnimal> animals) {
+        int powerAttack = animal.getPowerAttack();
+        List<AbstractAnimal> targetsForAttack = findTargetsForAttack(animal, animals);
+        if (!targetsForAttack.isEmpty()) {
+            for (AbstractAnimal target : targetsForAttack) {
+                takeDamage(powerAttack, target);
+            }
+        }
     }
 
-    public List<AbstractAnimal> findTargetsForAttack() {
+    default List<AbstractAnimal> findTargetsForAttack(AbstractAnimal animal, List<AbstractAnimal> animals) {
         List<AbstractAnimal> targets = new ArrayList<>();
         int currentX = animal.getCoordinates().x();
         int currentY = animal.getCoordinates().y();
@@ -33,7 +25,7 @@ public class AnimalInteraction {
             for (int j = -1; j < 1; j++) {
                 if (i == 0 && j == 0) continue;
                 Coordinates coordinatesTarget = new Coordinates(currentX + i, currentY + j);
-                AbstractAnimal animalTarget = findAnimal(coordinatesTarget);
+                AbstractAnimal animalTarget = findAnimal(coordinatesTarget, animals);
                 if (animalTarget != null && !animalTarget.getImage().equals(animal.getImage())) {
                     targets.add(animalTarget);
                 }
@@ -42,10 +34,14 @@ public class AnimalInteraction {
         return targets;
     }
 
-    private AbstractAnimal findAnimal(Coordinates neighboringCellCoordinate) {
+    private AbstractAnimal findAnimal(Coordinates neighboringCellCoordinate, List<AbstractAnimal> animals) {
         return animals.stream()
                 .filter(animal -> animal.getCoordinates().equals(neighboringCellCoordinate))
                 .findFirst()
                 .orElse(null);
+    }
+
+    private void takeDamage(int powerAttack, AbstractAnimal target) {
+        target.setHealth(target.getHealth() - powerAttack);
     }
 }

@@ -6,7 +6,7 @@ import org.example.models.Coordinates;
 import org.example.models.ValueCell;
 
 public class ValueCells {
-    private ValueCell[][] valueCells;
+    private final ValueCell[][] valueCells;
 
     public ValueCells(Config config) {
         valueCells = new ValueCell[config.sideField][config.sideField];

@@ -36,6 +36,12 @@ public class GameSolution extends Game {
     @Override
     public void onTurn(int step) {
         animalMover.move();
+
+        for (AbstractAnimal animal : animalsList) {
+            animal.attack(animal, animalsList);
+            System.out.println(animal.getHealth());
+        }
+
     }
 
     public void draw() {

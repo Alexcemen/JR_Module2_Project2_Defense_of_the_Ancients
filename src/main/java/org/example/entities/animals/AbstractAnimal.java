@@ -1,9 +1,10 @@
 package org.example.entities.animals;
 
+import org.example.command.Attachable;
 import org.example.models.Coordinates;
 
 
-public abstract class AbstractAnimal {
+public abstract class AbstractAnimal implements Attachable {
     private Coordinates coordinates;
     private int health;
     private int powerAttack;
@@ -46,13 +47,4 @@ public abstract class AbstractAnimal {
     public void setImage(String image) {
         this.image = image;
     }
-
-    public void attack(AbstractAnimal target) {
-        target.takeDamage(powerAttack);
-    }
-
-    public void takeDamage(int amount) {
-        this.health -= amount;
-    }
-
 }
