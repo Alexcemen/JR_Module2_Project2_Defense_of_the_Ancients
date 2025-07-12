@@ -61,7 +61,6 @@ public class GameSolution extends Game {
         }
     }
 
-
     private void clear() {
         for (int i = 0; i < SIDE; i++) {
             for (int j = 0; j < SIDE; j++) {
@@ -75,20 +74,9 @@ public class GameSolution extends Game {
         updateValueCellsArray(valueCells);
     }
 
-
-    private void updateValueCellsArray(ValueCells valueCells) {
-        for (int x = 0; x < SIDE; x++) {
-            for (int y = 0; y < SIDE; y++) {
-                Color cellColor = getCellColor(x, y);
-                String cellValue = getCellValue(x, y);
-                valueCells.updateValueCell(x, y, cellColor, cellValue);
-            }
-        }
-    }
-
-    private void updateAnimalsOnField(List<AbstractAnimal> animals, int n) {
+    private void updateAnimalsOnField(List<AbstractAnimal> animals, int colorNumber) {
         Color color;
-        if (n == 1) {
+        if (colorNumber == 1) {
             color = Color.PINK;
         } else {
             color = Color.AQUA;
@@ -101,6 +89,16 @@ public class GameSolution extends Game {
                     animal.getImage()
             );
         });
+    }
+
+    private void updateValueCellsArray(ValueCells valueCells) {
+        for (int x = 0; x < SIDE; x++) {
+            for (int y = 0; y < SIDE; y++) {
+                Color cellColor = getCellColor(x, y);
+                String cellValue = getCellValue(x, y);
+                valueCells.updateValueCell(x, y, cellColor, cellValue);
+            }
+        }
     }
 
     private void soutCells(ValueCells valueCells) {
