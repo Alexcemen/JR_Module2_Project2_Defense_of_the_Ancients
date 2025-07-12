@@ -20,14 +20,15 @@ public class AnimalMover {
 
     public void move() {
         for (AbstractAnimal animal : animals) {
-            Coordinates newCoordinates = getNewCoordinates(animal.getCoordinates());
-            if (checkCorrectCoordinates(newCoordinates)) {
-                animal.setCoordinates(newCoordinates);
-            }
+            Coordinates newCoordinates;
+            do {
+                newCoordinates = getNewCoordinates(animal.getCoordinates());
+            } while (!isCorrectCoordinates(newCoordinates) || !isCellEmpty(newCoordinates));
+            animal.setCoordinates(newCoordinates);
         }
     }
 
-    public Coordinates getNewCoordinates(Coordinates currentCoordinates) {
+    private Coordinates getNewCoordinates(Coordinates currentCoordinates) {
         Direction direction = getDirection();
         int currentX = currentCoordinates.x();
         int currentY = currentCoordinates.y();
@@ -48,7 +49,7 @@ public class AnimalMover {
         return Direction.getDirection(randomNumber);
     }
 
-    private Boolean checkCorrectCoordinates(Coordinates coordinates) {
+    private Boolean isCorrectCoordinates(Coordinates coordinates) {
         if (coordinates.x() < 0
                 || coordinates.x() >= config.sideField
                 || coordinates.y() < 0
@@ -58,6 +59,11 @@ public class AnimalMover {
         } else {
             return true;
         }
+    }
+
+    private Boolean isCellEmpty(Coordinates coordinates) {
+        return animals.stream()
+                .noneMatch(animal -> animal.getCoordinates().equals(coordinates));
     }
 
     private Boolean isSameCoordinates(Coordinates currentCoordinates, Coordinates newCoordinates) {

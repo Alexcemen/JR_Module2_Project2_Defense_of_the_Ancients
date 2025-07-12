@@ -26,22 +26,39 @@ public class GameSolution extends Game {
         animalsList = entitiesFabric.getAnimalsList();
         animalMover = new AnimalMover(config, animalsList);
         valueCells = new ValueCells(config);
-
-
         setScreenSize(SIDE, SIDE);
-        drawScene(valueCells);
-
         setTurnTimer(config.turnTimer);
-
-
+        draw();
     }
 
     @Override
     public void onTurn(int step) {
         animalMover.move();
-        clear();
-        updateAnimalsOnField(animalsList);
     }
+
+    public void draw() {
+        new Thread(() -> updateScene()).start();
+    }
+
+    private void updateScene() {
+        while (true) {
+            clear();
+            drawScene(valueCells, 1);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            clear();
+            drawScene(valueCells, 2);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     private void clear() {
         for (int i = 0; i < SIDE; i++) {
@@ -49,6 +66,11 @@ public class GameSolution extends Game {
                 setCellValueEx(i, j, Color.WHITE, "");
             }
         }
+    }
+
+    private void drawScene(ValueCells valueCells, int n) {
+        updateAnimalsOnField(animalsList, n);
+        updateValueCellsArray(valueCells);
     }
 
 
@@ -62,22 +84,22 @@ public class GameSolution extends Game {
         }
     }
 
-    private void updateAnimalsOnField(List<AbstractAnimal> animals) {
+    private void updateAnimalsOnField(List<AbstractAnimal> animals, int n) {
+        Color color;
+        if (n == 1) {
+            color = Color.PINK;
+        } else {
+            color = Color.AQUA;
+        }
         animals.forEach(animal -> {
             setCellValueEx(
                     animal.getCoordinates().x(),
                     animal.getCoordinates().y(),
-                    Color.ALICEBLUE,
+                    color,
                     animal.getImage()
             );
         });
     }
-
-    private void drawScene(ValueCells valueCells) {
-        updateAnimalsOnField(animalsList);
-        updateValueCellsArray(valueCells);
-    }
-
 
     private void soutCells(ValueCells valueCells) {
         for (ValueCell[] valueCellsArray : valueCells.getValueCells()) {
@@ -91,5 +113,4 @@ public class GameSolution extends Game {
             }
         }
     }
-
 }
