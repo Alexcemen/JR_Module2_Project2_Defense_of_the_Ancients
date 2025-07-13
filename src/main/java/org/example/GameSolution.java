@@ -5,6 +5,7 @@ import com.javarush.engine.cell.Color;
 import com.javarush.engine.cell.Game;
 import org.example.command.AnimalAttacker;
 import org.example.command.AnimalMover;
+import org.example.command.AnimalMultiply;
 import org.example.command.EntitiesFabric;
 import org.example.config.Config;
 import org.example.data.ValueCells;
@@ -20,6 +21,7 @@ public class GameSolution extends Game {
     private List<AbstractAnimal> animalsList;
     private AnimalMover animalMover;
     private AnimalAttacker animalAttacker;
+    private AnimalMultiply animalMultiply;
     private ValueCells valueCells;
 
     @Override
@@ -30,6 +32,7 @@ public class GameSolution extends Game {
         animalsList = entitiesFabric.getAnimalsList();
         animalMover = new AnimalMover(config, animalsList);
         animalAttacker = new AnimalAttacker(animalsList);
+        animalMultiply = new AnimalMultiply(animalsList);
         valueCells = new ValueCells(config);
         setScreenSize(SIDE, SIDE);
         setTurnTimer(config.turnTimer);
@@ -42,6 +45,7 @@ public class GameSolution extends Game {
         for (AbstractAnimal animal : animalsList) {
             animalMover.move(animal);
             animalAttacker.attack(animal);
+            animalMultiply.multiply(animal);
         }
     }
 
