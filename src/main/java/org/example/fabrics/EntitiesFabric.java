@@ -1,4 +1,4 @@
-package org.example.command;
+package org.example.fabrics;
 
 import org.example.config.Config;
 import org.example.entities.animals.*;

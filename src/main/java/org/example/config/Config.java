@@ -18,6 +18,13 @@ public class Config {
     public final int startCountAnimals;
     public final int sideField;
     public final int turnTimer;
+    public final String healingRuneImage;
+    public final String poisonRuneImage;
+    public final String powerAttackRuneImage;
+    public final String cloningRuneImage;
+    public final int healingRuneExecute;
+    public final int poisonRuneExecute;
+    public final int powerAttackRuneExecute;
 
     private Config(Properties props) {
         this.bearImage = props.getProperty("bear_image");
@@ -33,6 +40,13 @@ public class Config {
         this.startCountAnimals = Integer.parseInt(props.getProperty("start_count_animals"));
         this.sideField = Integer.parseInt(props.getProperty("side_field"));
         this.turnTimer = Integer.parseInt(props.getProperty("turn_timer"));
+        this.healingRuneImage = props.getProperty("healing_rune_image");
+        this.poisonRuneImage = props.getProperty("poison_rune_image");
+        this.powerAttackRuneImage = props.getProperty("power_attack_rune_image");
+        this.cloningRuneImage = props.getProperty("cloning_rune_image");
+        this.healingRuneExecute = Integer.parseInt(props.getProperty("healing_rune_execute"));
+        this.poisonRuneExecute = Integer.parseInt(props.getProperty("poison_rune_execute"));
+        this.powerAttackRuneExecute = Integer.parseInt(props.getProperty("power_attack_rune_execute"));
     }
 
     public static Config load() {

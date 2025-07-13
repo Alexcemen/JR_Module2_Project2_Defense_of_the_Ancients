@@ -6,14 +6,19 @@ import com.javarush.engine.cell.Game;
 import org.example.command.AnimalAttacker;
 import org.example.command.AnimalMover;
 import org.example.command.AnimalMultiply;
-import org.example.command.EntitiesFabric;
+import org.example.entities.runes.AbstractRune;
+import org.example.fabrics.EntitiesFabric;
 import org.example.config.Config;
 import org.example.data.ValueCells;
 import org.example.entities.animals.*;
+import org.example.fabrics.RuneFabric;
 import org.example.models.ValueCell;
 import org.example.util.Field;
 
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class GameSolution extends Game {
     private int SIDE;
@@ -24,6 +29,8 @@ public class GameSolution extends Game {
     private AnimalAttacker animalAttacker;
     private AnimalMultiply animalMultiply;
     private ValueCells valueCells;
+    private RuneFabric runeFabric;
+    private List<AbstractRune> runes;
 
     @Override
     public void initialize() {
@@ -35,18 +42,29 @@ public class GameSolution extends Game {
         animalAttacker = new AnimalAttacker(animalsList);
         animalMultiply = new AnimalMultiply(animalsList);
         valueCells = new ValueCells(config);
+        runeFabric = new RuneFabric(config, animalsList);
+        runes = runeFabric.getRunes();
         setScreenSize(SIDE, SIDE);
         setTurnTimer(config.turnTimer);
         draw();
+        startRunesExecute();
     }
 
     @Override
     public void onTurn(int step) {
         //заменить цикл на executor
+
         for (AbstractAnimal animal : animalsList) {
             animalMover.move(animal);
             animalAttacker.attack(animal);
             animalMultiply.multiply(animal);
+            for (AbstractRune rune : runes) {
+                if (animal.getCoordinates() == rune.getCoordinates()) {
+                    rune.setAnimal(animal);
+                    rune.execute();
+                    runes.remove(rune);
+                }
+            }
         }
     }
 
@@ -57,14 +75,14 @@ public class GameSolution extends Game {
     private void updateScene() {
         while (true) {
             clear();
-            drawScene(valueCells, 1);
+            drawScene(1);
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             clear();
-            drawScene(valueCells, 2);
+            drawScene(2);
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -82,18 +100,20 @@ public class GameSolution extends Game {
         Color[][] map = Field.getMap();
         for (int y = 0; y < map.length; y++) {
             for (int x = 0; x < map[y].length; x++) {
-                setCellValueEx(x, y, map[y][x], "");
+                String value = "";
+                if (map[y][x] == Color.DARKOLIVEGREEN) {
+                    value = "\uD83C\uDF33";
+                } else if (map[y][x] == Color.DARKSLATEGRAY) {
+                    value = "\uD83C\uDF32";
+                }
+                setCellValueEx(x, y, map[y][x], value);
             }
         }
         setCellValue(0, 19, "\uD83C\uDFF0");//база radiant
         setCellValue(19, 0, "\uD83C\uDFEF");//база dark
-        //radiant
-        setCellValue(3, 8, "\uD83C\uDF33");//ель
-        setCellValue(9, 16, "\uD83C\uDF33");//дуб
+        setCellValue(4, 8, "\uD83C\uDFD5");//палатка
+        setCellValue(16, 12, "\uD83C\uDFD5");
 
-        //dark
-        setCellValue(10, 3, "\uD83C\uDF32");//ель
-        setCellValue(16, 14, "\uD83C\uDF32");//дуб
         for (int y = 0; y < map.length; y++) {
             for (int x = 0; x < map[y].length; x++) {
                 setCellTextSize(x, y, 90);
@@ -101,12 +121,13 @@ public class GameSolution extends Game {
         }
     }
 
-    private void drawScene(ValueCells valueCells, int n) {
-        updateAnimalsOnField(animalsList, n);
+    private void drawScene( int n) {
+        updateRunesInField(runes);
+        updateAnimalsOnField(n);
         updateValueCellsArray(valueCells);
     }
 
-    private void updateAnimalsOnField(List<AbstractAnimal> animals, int colorNumber) {
+    private void updateAnimalsOnField(int colorNumber) {
         //Татьяна, когда я писал вам сообщение, я хотел, чтобы этот метод отрисовывал поле
         //и каждые 100 millis менял цвет фона
         Color color;
@@ -116,13 +137,26 @@ public class GameSolution extends Game {
             color = Color.AQUA;
         }
 
-        animals.forEach(animal -> {
+        animalsList.forEach(animal -> {
             setCellValueEx(
                     animal.getCoordinates().x(),
                     animal.getCoordinates().y(),
                     getHealthColor(animal.getHealth()), //эту строчку нужно заменить на color
 //                    color,
                     animal.getImage(),
+                    Color.AQUA,
+                    90
+            );
+        });
+    }
+
+    private void updateRunesInField(List<AbstractRune> runes) {
+        runes.forEach(rune -> {
+            setCellValueEx(
+                    rune.getCoordinates().x(),
+                    rune.getCoordinates().y(),
+                    Color.DARKCYAN,
+                    rune.getImage(),
                     Color.AQUA,
                     90
             );
@@ -165,5 +199,20 @@ public class GameSolution extends Game {
             case 3, 2 -> Color.ORANGERED;
             default -> Color.RED;
         };
+    }
+
+    private final ScheduledExecutorService exec =
+            Executors.newSingleThreadScheduledExecutor(runnable -> {
+                Thread thread = new Thread(runnable, "bot-scheduler");
+                thread.setDaemon(true);
+                return thread;
+            });
+
+    public void startRunesExecute() {
+        exec.scheduleAtFixedRate(
+                runeFabric.updateListRunes(),
+                0,
+                10,
+                TimeUnit.SECONDS);
     }
 }
