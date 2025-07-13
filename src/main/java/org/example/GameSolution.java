@@ -11,6 +11,7 @@ import org.example.config.Config;
 import org.example.data.ValueCells;
 import org.example.entities.animals.*;
 import org.example.models.ValueCell;
+import org.example.util.Field;
 
 import java.util.List;
 
@@ -73,9 +74,29 @@ public class GameSolution extends Game {
     }
 
     private void clear() {
-        for (int i = 0; i < SIDE; i++) {
-            for (int j = 0; j < SIDE; j++) {
-                setCellValueEx(i, j, Color.WHITE, "");
+        drawMap();
+    }
+
+
+    private void drawMap() {
+        Color[][] map = Field.getMap();
+        for (int y = 0; y < map.length; y++) {
+            for (int x = 0; x < map[y].length; x++) {
+                setCellValueEx(x, y, map[y][x], "");
+            }
+        }
+        setCellValue(0, 19, "\uD83C\uDFF0");//база radiant
+        setCellValue(19, 0, "\uD83C\uDFEF");//база dark
+        //radiant
+        setCellValue(3, 8, "\uD83C\uDF33");//ель
+        setCellValue(9, 16, "\uD83C\uDF33");//дуб
+
+        //dark
+        setCellValue(10, 3, "\uD83C\uDF32");//ель
+        setCellValue(16, 14, "\uD83C\uDF32");//дуб
+        for (int y = 0; y < map.length; y++) {
+            for (int x = 0; x < map[y].length; x++) {
+                setCellTextSize(x, y, 90);
             }
         }
     }
@@ -101,7 +122,9 @@ public class GameSolution extends Game {
                     animal.getCoordinates().y(),
                     getHealthColor(animal.getHealth()), //эту строчку нужно заменить на color
 //                    color,
-                    animal.getImage()
+                    animal.getImage(),
+                    Color.AQUA,
+                    90
             );
         });
     }
