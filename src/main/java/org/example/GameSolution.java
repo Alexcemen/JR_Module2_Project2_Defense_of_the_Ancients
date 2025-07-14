@@ -6,7 +6,7 @@ import com.javarush.engine.cell.Game;
 import org.example.command.AnimalAttacker;
 import org.example.command.AnimalMover;
 import org.example.entities.runes.AbstractRune;
-import org.example.fabrics.EntitiesFabric;
+import org.example.fabrics.AnimalsFabric;
 import org.example.config.Config;
 import org.example.data.ValueCells;
 import org.example.entities.animals.*;
@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 public class GameSolution extends Game {
     private int SIDE;
     private Config config;
-    private EntitiesFabric entitiesFabric;
+    private AnimalsFabric animalsFabric;
     private List<AbstractAnimal> animalsList;
     private AnimalMover animalMover;
     private AnimalAttacker animalAttacker;
@@ -35,8 +35,8 @@ public class GameSolution extends Game {
     public void initialize() {
         config = Config.load();
         SIDE = config.sideField;
-        entitiesFabric = new EntitiesFabric(config);
-        animalsList = entitiesFabric.getAnimalsList();
+        animalsFabric = new AnimalsFabric(config);
+        animalsList = animalsFabric.getAnimalsList();
         animalMover = new AnimalMover(config, animalsList);
         animalAttacker = new AnimalAttacker(animalsList);
         valueCells = new ValueCells(config);

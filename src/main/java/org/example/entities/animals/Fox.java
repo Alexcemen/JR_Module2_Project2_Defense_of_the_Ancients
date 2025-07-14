@@ -1,15 +1,16 @@
 package org.example.entities.animals;
 
 import org.example.models.Coordinates;
+import org.example.models.Faction;
 
 public class Fox extends AbstractAnimal {
-    public Fox(int health, int powerAttack, String image) {
-        super(health, powerAttack, image);
+    public Fox(int health, int powerAttack, String image, Faction faction) {
+        super(health, powerAttack, image, faction);
     }
 
     @Override
     public AbstractAnimal copy() {
-        Fox clone = new Fox(this.getHealth(), this.getPowerAttack(), this.getImage());
+        Fox clone = new Fox(this.getHealth(), this.getPowerAttack(), this.getImage(), this.getFaction());
         clone.setCoordinates(new Coordinates(this.getCoordinates().x(), this.getCoordinates().y()));
         return clone;
     }

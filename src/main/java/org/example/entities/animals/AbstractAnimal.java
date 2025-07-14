@@ -1,6 +1,7 @@
 package org.example.entities.animals;
 
 import org.example.models.Coordinates;
+import org.example.models.Faction;
 
 
 public abstract class AbstractAnimal {
@@ -8,13 +9,13 @@ public abstract class AbstractAnimal {
     private int health;
     private int powerAttack;
     private String image;
-    private int countPossibleChildren;
+    private Faction faction;
 
-    public AbstractAnimal(int health, int powerAttack, String image) {
+    public AbstractAnimal(int health, int powerAttack, String image, Faction faction) {
         this.health = health;
         this.powerAttack = powerAttack;
         this.image = image;
-        countPossibleChildren = 3;
+        this.faction = faction;
     }
 
     public Coordinates getCoordinates() {
@@ -33,6 +34,10 @@ public abstract class AbstractAnimal {
         this.health = health;
     }
 
+    public Faction getFaction() {
+        return faction;
+    }
+
     public int getPowerAttack() {
         return powerAttack;
     }
@@ -43,18 +48,6 @@ public abstract class AbstractAnimal {
 
     public String getImage() {
         return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
-
-    public int getCountPossibleChildren() {
-        return countPossibleChildren;
-    }
-
-    public void setCountPossibleChildren(int countPossibleChildren) {
-        this.countPossibleChildren = countPossibleChildren;
     }
 
     public abstract AbstractAnimal copy();
