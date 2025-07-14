@@ -14,12 +14,16 @@ import org.example.fabrics.ExecutorsFabric;
 import org.example.fabrics.RuneFabric;
 import org.example.models.Faction;
 import org.example.util.Field;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class GameSolution extends Game {
+    private final static Logger log = LoggerFactory.getLogger(GameSolution.class);
     private int SIDE;
     private Config config;
     private AnimalsFabric animalsFabric;
@@ -59,6 +63,7 @@ public class GameSolution extends Game {
     }
 
     public void checker() {
+        log.info("⚙️ Запущен цикл проверки победителей");
         executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
                 () -> {
                     int radiantAnimalsCount = 0;
@@ -70,11 +75,14 @@ public class GameSolution extends Game {
                             direAnimalsCount++;
                         }
                     }
+                    log.info("🐺 Radiant: {} | 🐉 Dire: {}", radiantAnimalsCount, direAnimalsCount);
                     if (radiantAnimalsCount == 0) {
-                        showMessageDialog(Color.BLACK, "Radiant Victory!", Color.WHITE, 90);
+                        log.info("🏴 Победа Dire — все Radiant уничтожены");
+                        showMessageDialog(Color.BLACK, "Dire Victory!", Color.WHITE, 90);
                         complete();
                     } else if (direAnimalsCount == 0) {
-                        showMessageDialog(Color.BLACK, "Dire Victory!", Color.WHITE, 90);
+                        log.info("🟩 Победа Radiant — все Dire уничтожены");
+                        showMessageDialog(Color.BLACK, "Radiant Victory!", Color.WHITE, 90);
                         complete();
                     }
                 },
@@ -91,6 +99,7 @@ public class GameSolution extends Game {
     }
 
     public ScheduledFuture startAnimals() {
+        log.info("⚙️ Запущен цикл движения животных и взаимодействия с рунами");
         return executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
                 () -> {
                     for (AbstractAnimal animal : animalsList) {
@@ -101,31 +110,40 @@ public class GameSolution extends Game {
                         while (iterator.hasNext()) {
                             AbstractRune rune = iterator.next();
                             if (animal.getCoordinates().equals(rune.getCoordinates())) {
+                                log.info("⚡ Обнаружена руна {} на координатах {} — активируется",
+                                        rune.getClass().getSimpleName(),
+                                        rune.getCoordinates());
                                 rune.setAnimal(animal);
                                 rune.execute();
                                 iterator.remove();
+                                log.info("🔥 Руна {} удалена после активации", rune.getClass().getSimpleName());
                             }
                         }
                     }
                 },
-                0,
-                100,
-                TimeUnit.MILLISECONDS
-        );
-    }
-
-    public ScheduledFuture startDraw() {
-        return executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
-                this::drawScene,
                 0,
                 1000,
                 TimeUnit.MILLISECONDS
         );
     }
 
-    public ScheduledFuture startRunesExecute() {
+    public ScheduledFuture startDraw() {
+        log.info("🗺️ Запущена отрисовка карты и элементов поля");
         return executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
-                runeFabric.updateListRunes(),
+                this::drawScene,
+                0,
+                100,
+                TimeUnit.MILLISECONDS
+        );
+    }
+
+    public ScheduledFuture startRunesExecute() {
+        log.info("⚙️ Запущен цикл обновления рун на поле");
+        return executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
+                () -> {
+                    log.info("✨ Обновление списка рун");
+                    runeFabric.updateListRunes().run();
+                },
                 0,
                 10,
                 TimeUnit.SECONDS);
