@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AnimalAttacker {
-    private List<AbstractAnimal> animals;
+    private final List<AbstractAnimal> animals;
 
     public AnimalAttacker(List<AbstractAnimal> animals) {
         this.animals = animals;
@@ -35,7 +35,7 @@ public class AnimalAttacker {
                 if (i == 0 && j == 0) continue;
                 Coordinates coordinatesTarget = new Coordinates(currentX + i, currentY + j);
                 AbstractAnimal animalTarget = findAnimal(coordinatesTarget, animals);
-                if (animalTarget != null && !animalTarget.getImage().equals(animal.getImage())) {
+                if (animalTarget != null && !animalTarget.getFaction().equals(animal.getFaction())) {
                     targets.add(animalTarget);
                 }
             }

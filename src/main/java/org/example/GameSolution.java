@@ -12,11 +12,11 @@ import org.example.data.ValueCells;
 import org.example.entities.animals.*;
 import org.example.fabrics.ExecutorsFabric;
 import org.example.fabrics.RuneFabric;
-import org.example.models.ValueCell;
+import org.example.models.Faction;
 import org.example.util.Field;
-
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class GameSolution extends Game {
@@ -31,6 +31,10 @@ public class GameSolution extends Game {
     private List<AbstractRune> runes;
     private ExecutorsFabric executorsFabric;
 
+    private ScheduledFuture startRunesExecute;
+    private ScheduledFuture startAnimalsExecute;
+    private ScheduledFuture startDrawExecute;
+
     @Override
     public void initialize() {
         config = Config.load();
@@ -44,14 +48,50 @@ public class GameSolution extends Game {
         executorsFabric = new ExecutorsFabric();
         runes = runeFabric.getRunes();
         setScreenSize(SIDE, SIDE);
-        startRunesExecute();
-        startAnimals();
-        startDraw();
-
+        startGame();
     }
 
-    public void startAnimals() {
+    public void startGame() {
+        startRunesExecute = startRunesExecute();
+        startAnimalsExecute = startAnimals();
+        startDrawExecute = startDraw();
+        checker();
+    }
+
+    public void checker() {
         executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
+                () -> {
+                    int radiantAnimalsCount = 0;
+                    int direAnimalsCount = 0;
+                    for (AbstractAnimal abstractAnimal : animalsList) {
+                        if (abstractAnimal.getFaction() == Faction.RADIANT) {
+                            radiantAnimalsCount++;
+                        } else {
+                            direAnimalsCount++;
+                        }
+                    }
+                    if (radiantAnimalsCount == 0) {
+                        showMessageDialog(Color.BLACK, "Radiant Victory!", Color.WHITE, 90);
+                        complete();
+                    } else if (direAnimalsCount == 0) {
+                        showMessageDialog(Color.BLACK, "Dire Victory!", Color.WHITE, 90);
+                        complete();
+                    }
+                },
+                0,
+                50,
+                TimeUnit.MILLISECONDS
+        );
+    }
+
+    public void complete() {
+        startRunesExecute.cancel(true);
+        startRunesExecute.cancel(true);
+        startDrawExecute.cancel(true);
+    }
+
+    public ScheduledFuture startAnimals() {
+        return executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
                 () -> {
                     for (AbstractAnimal animal : animalsList) {
                         animalMover.move(animal);
@@ -69,22 +109,22 @@ public class GameSolution extends Game {
                     }
                 },
                 0,
-                1,
-                TimeUnit.SECONDS
-        );
-    }
-
-    public void startDraw() {
-        executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
-                this::drawScene,
-                0,
-                10,
+                100,
                 TimeUnit.MILLISECONDS
         );
     }
 
-    public void startRunesExecute() {
-        executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
+    public ScheduledFuture startDraw() {
+        return executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
+                this::drawScene,
+                0,
+                1000,
+                TimeUnit.MILLISECONDS
+        );
+    }
+
+    public ScheduledFuture startRunesExecute() {
+        return executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
                 runeFabric.updateListRunes(),
                 0,
                 10,
@@ -129,7 +169,7 @@ public class GameSolution extends Game {
             setCellValueEx(
                     animal.getCoordinates().x(),
                     animal.getCoordinates().y(),
-                    getHealthColor(animal.getHealth()), //эту строчку нужно заменить на color
+                    getHealthColor(animal),
                     animal.getImage(),
                     Color.AQUA,
                     90
@@ -160,31 +200,33 @@ public class GameSolution extends Game {
         }
     }
 
-    private void soutCells(ValueCells valueCells) {
-        for (ValueCell[] valueCellsArray : valueCells.getValueCells()) {
-            for (ValueCell valueCell : valueCellsArray) {
-                System.out.println(
-                        "x=" + valueCell.getCoordinates().x() +
-                                " y=" + valueCell.getCoordinates().y() +
-                                " color=" + valueCell.getColor() +
-                                " value=" + valueCell.getValue()
-                );
-            }
-        }
-    }
-
-    private Color getHealthColor(int health) {
+    private Color getHealthColor(AbstractAnimal animal) {
+        int health = animal.getHealth();
         int group = health / 10;
-        return switch (group) {
-            case 10 -> Color.LIME;
-            case 9 -> Color.GREENYELLOW;
-            case 8 -> Color.YELLOWGREEN;
-            case 7 -> Color.YELLOW;
-            case 6 -> Color.GOLD;
-            case 5 -> Color.ORANGE;
-            case 4 -> Color.DARKORANGE;
-            case 3, 2 -> Color.ORANGERED;
-            default -> Color.RED;
-        };
+        if (animal.getFaction() == Faction.RADIANT) {
+            return switch (group) {
+                case 9 -> Color.GREENYELLOW;
+                case 8 -> Color.YELLOWGREEN;
+                case 7 -> Color.YELLOW;
+                case 6 -> Color.GOLD;
+                case 5 -> Color.ORANGE;
+                case 4 -> Color.DARKORANGE;
+                case 3 -> Color.ORANGERED;
+                case 2 -> Color.CRIMSON;
+                default -> Color.LIME;
+            };
+        } else {
+            return switch (group) {
+                case 9 -> Color.DARKSEAGREEN;
+                case 8 -> Color.OLIVEDRAB;
+                case 7 -> Color.GOLDENROD;
+                case 6 -> Color.DARKGOLDENROD;
+                case 5 -> Color.PERU;
+                case 4 -> Color.FIREBRICK;
+                case 3 -> Color.DARKRED;
+                case 2 -> Color.MAROON;
+                default -> Color.DARKOLIVEGREEN;
+            };
+        }
     }
 }
