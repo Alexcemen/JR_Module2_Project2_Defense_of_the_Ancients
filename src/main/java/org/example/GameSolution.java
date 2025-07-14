@@ -15,6 +15,7 @@ import org.example.fabrics.RuneFabric;
 import org.example.models.ValueCell;
 import org.example.util.Field;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -55,11 +56,14 @@ public class GameSolution extends Game {
                     for (AbstractAnimal animal : animalsList) {
                         animalMover.move(animal);
                         animalAttacker.attack(animal);
-                        for (AbstractRune rune : runes) {
-                            if (animal.getCoordinates() == rune.getCoordinates()) {
+
+                        Iterator<AbstractRune> iterator = runes.iterator();
+                        while (iterator.hasNext()) {
+                            AbstractRune rune = iterator.next();
+                            if (animal.getCoordinates().equals(rune.getCoordinates())) {
                                 rune.setAnimal(animal);
                                 rune.execute();
-                                runes.remove(rune);
+                                iterator.remove();
                             }
                         }
                     }
@@ -72,9 +76,9 @@ public class GameSolution extends Game {
 
     public void startDraw() {
         executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
-                () -> updateScene(),
+                this::drawScene,
                 0,
-                200,
+                10,
                 TimeUnit.MILLISECONDS
         );
     }
@@ -87,29 +91,12 @@ public class GameSolution extends Game {
                 TimeUnit.SECONDS);
     }
 
-    private void updateScene() {
-        while (true) {
-            clear();
-            drawScene(1);
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            clear();
-            drawScene(2);
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void clear() {
+    private void drawScene() {
         drawMap();
+        updateRunesOnField();
+        updateAnimalsOnField();
+        updateValueCellsArray();
     }
-
 
     private void drawMap() {
         Color[][] map = Field.getMap();
@@ -136,28 +123,13 @@ public class GameSolution extends Game {
         }
     }
 
-    private void drawScene( int n) {
-        updateRunesInField(runes);
-        updateAnimalsOnField(n);
-        updateValueCellsArray(valueCells);
-    }
 
-    private void updateAnimalsOnField(int colorNumber) {
-        //Татьяна, когда я писал вам сообщение, я хотел, чтобы этот метод отрисовывал поле
-        //и каждые 100 millis менял цвет фона
-        Color color;
-        if (colorNumber == 1) {
-            color = Color.PINK;
-        } else {
-            color = Color.AQUA;
-        }
-
+    private void updateAnimalsOnField() {
         animalsList.forEach(animal -> {
             setCellValueEx(
                     animal.getCoordinates().x(),
                     animal.getCoordinates().y(),
-//                    getHealthColor(animal.getHealth()), //эту строчку нужно заменить на color
-                    color,
+                    getHealthColor(animal.getHealth()), //эту строчку нужно заменить на color
                     animal.getImage(),
                     Color.AQUA,
                     90
@@ -165,7 +137,7 @@ public class GameSolution extends Game {
         });
     }
 
-    private void updateRunesInField(List<AbstractRune> runes) {
+    private void updateRunesOnField() {
         runes.forEach(rune -> {
             setCellValueEx(
                     rune.getCoordinates().x(),
@@ -178,7 +150,7 @@ public class GameSolution extends Game {
         });
     }
 
-    private void updateValueCellsArray(ValueCells valueCells) {
+    private void updateValueCellsArray() {
         for (int x = 0; x < SIDE; x++) {
             for (int y = 0; y < SIDE; y++) {
                 Color cellColor = getCellColor(x, y);

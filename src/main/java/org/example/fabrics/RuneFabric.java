@@ -6,6 +6,8 @@ import org.example.entities.runes.*;
 import org.example.models.Coordinates;
 import org.example.models.RuneEffect;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadLocalRandom;
@@ -33,7 +35,7 @@ public class RuneFabric {
     }
 
     private void createListRunes() {
-        runes = new CopyOnWriteArrayList<>();
+        runes = Collections.synchronizedList(new ArrayList<>());
         coordinates1 = new Coordinates(5, 4);
         coordinates2 = new Coordinates(13, 15);
 

@@ -24,7 +24,6 @@ public class AnimalMover {
             newCoordinates = getNewCoordinates(animal.getCoordinates());
         } while (!isCorrectCoordinates(newCoordinates) || !isCellEmpty(newCoordinates));
         animal.setCoordinates(newCoordinates);
-
     }
 
     private Coordinates getNewCoordinates(Coordinates currentCoordinates) {
