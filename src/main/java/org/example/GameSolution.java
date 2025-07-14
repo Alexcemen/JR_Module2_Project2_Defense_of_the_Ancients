@@ -10,13 +10,12 @@ import org.example.fabrics.EntitiesFabric;
 import org.example.config.Config;
 import org.example.data.ValueCells;
 import org.example.entities.animals.*;
+import org.example.fabrics.ExecutorsFabric;
 import org.example.fabrics.RuneFabric;
 import org.example.models.ValueCell;
 import org.example.util.Field;
 
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class GameSolution extends Game {
@@ -29,6 +28,7 @@ public class GameSolution extends Game {
     private ValueCells valueCells;
     private RuneFabric runeFabric;
     private List<AbstractRune> runes;
+    private ExecutorsFabric executorsFabric;
 
     @Override
     public void initialize() {
@@ -40,35 +40,17 @@ public class GameSolution extends Game {
         animalAttacker = new AnimalAttacker(animalsList);
         valueCells = new ValueCells(config);
         runeFabric = new RuneFabric(config, animalsList);
+        executorsFabric = new ExecutorsFabric();
         runes = runeFabric.getRunes();
         setScreenSize(SIDE, SIDE);
-//        setTurnTimer(config.turnTimer);
         startRunesExecute();
-        psevdoOnTurn();
-        draw();
-
+        startAnimals();
+        startDraw();
 
     }
 
-//    @Override
-//    public void onTurn(int step) {
-//        //заменить цикл на executor
-//
-//        for (AbstractAnimal animal : animalsList) {
-//            animalMover.move(animal);
-//            animalAttacker.attack(animal);
-//            for (AbstractRune rune : runes) {
-//                if (animal.getCoordinates() == rune.getCoordinates()) {
-//                    rune.setAnimal(animal);
-//                    rune.execute();
-//                    runes.remove(rune);
-//                }
-//            }
-//        }
-//    }
-
-    public void psevdoOnTurn() {
-        exec3.scheduleAtFixedRate(
+    public void startAnimals() {
+        executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
                 () -> {
                     for (AbstractAnimal animal : animalsList) {
                         animalMover.move(animal);
@@ -88,14 +70,21 @@ public class GameSolution extends Game {
         );
     }
 
-    public void draw() {
-//        new Thread(() -> updateScene()).start();
-        exec2.scheduleAtFixedRate(
+    public void startDraw() {
+        executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
                 () -> updateScene(),
                 0,
                 200,
                 TimeUnit.MILLISECONDS
         );
+    }
+
+    public void startRunesExecute() {
+        executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
+                runeFabric.updateListRunes(),
+                0,
+                10,
+                TimeUnit.SECONDS);
     }
 
     private void updateScene() {
@@ -225,34 +214,5 @@ public class GameSolution extends Game {
             case 3, 2 -> Color.ORANGERED;
             default -> Color.RED;
         };
-    }
-
-    private final ScheduledExecutorService exec1 =
-            Executors.newSingleThreadScheduledExecutor(runnable -> {
-                Thread thread = new Thread(runnable, "bot-scheduler");
-                thread.setDaemon(true);
-                return thread;
-            });
-
-    private final ScheduledExecutorService exec2 =
-            Executors.newSingleThreadScheduledExecutor(runnable -> {
-                Thread thread = new Thread(runnable, "bot-scheduler");
-                thread.setDaemon(true);
-                return thread;
-            });
-
-    private final ScheduledExecutorService exec3 =
-            Executors.newSingleThreadScheduledExecutor(runnable -> {
-                Thread thread = new Thread(runnable, "bot-scheduler");
-                thread.setDaemon(true);
-                return thread;
-            });
-
-    public void startRunesExecute() {
-        exec1.scheduleAtFixedRate(
-                runeFabric.updateListRunes(),
-                0,
-                10,
-                TimeUnit.SECONDS);
     }
 }
