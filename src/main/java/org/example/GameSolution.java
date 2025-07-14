@@ -5,7 +5,6 @@ import com.javarush.engine.cell.Color;
 import com.javarush.engine.cell.Game;
 import org.example.command.AnimalAttacker;
 import org.example.command.AnimalMover;
-import org.example.command.AnimalMultiply;
 import org.example.entities.runes.AbstractRune;
 import org.example.fabrics.EntitiesFabric;
 import org.example.config.Config;
@@ -27,7 +26,6 @@ public class GameSolution extends Game {
     private List<AbstractAnimal> animalsList;
     private AnimalMover animalMover;
     private AnimalAttacker animalAttacker;
-    private AnimalMultiply animalMultiply;
     private ValueCells valueCells;
     private RuneFabric runeFabric;
     private List<AbstractRune> runes;
@@ -40,36 +38,64 @@ public class GameSolution extends Game {
         animalsList = entitiesFabric.getAnimalsList();
         animalMover = new AnimalMover(config, animalsList);
         animalAttacker = new AnimalAttacker(animalsList);
-        animalMultiply = new AnimalMultiply(animalsList);
         valueCells = new ValueCells(config);
         runeFabric = new RuneFabric(config, animalsList);
         runes = runeFabric.getRunes();
         setScreenSize(SIDE, SIDE);
-        setTurnTimer(config.turnTimer);
-        draw();
+//        setTurnTimer(config.turnTimer);
         startRunesExecute();
+        psevdoOnTurn();
+        draw();
+
+
     }
 
-    @Override
-    public void onTurn(int step) {
-        //заменить цикл на executor
+//    @Override
+//    public void onTurn(int step) {
+//        //заменить цикл на executor
+//
+//        for (AbstractAnimal animal : animalsList) {
+//            animalMover.move(animal);
+//            animalAttacker.attack(animal);
+//            for (AbstractRune rune : runes) {
+//                if (animal.getCoordinates() == rune.getCoordinates()) {
+//                    rune.setAnimal(animal);
+//                    rune.execute();
+//                    runes.remove(rune);
+//                }
+//            }
+//        }
+//    }
 
-        for (AbstractAnimal animal : animalsList) {
-            animalMover.move(animal);
-            animalAttacker.attack(animal);
-            animalMultiply.multiply(animal);
-            for (AbstractRune rune : runes) {
-                if (animal.getCoordinates() == rune.getCoordinates()) {
-                    rune.setAnimal(animal);
-                    rune.execute();
-                    runes.remove(rune);
-                }
-            }
-        }
+    public void psevdoOnTurn() {
+        exec3.scheduleAtFixedRate(
+                () -> {
+                    for (AbstractAnimal animal : animalsList) {
+                        animalMover.move(animal);
+                        animalAttacker.attack(animal);
+                        for (AbstractRune rune : runes) {
+                            if (animal.getCoordinates() == rune.getCoordinates()) {
+                                rune.setAnimal(animal);
+                                rune.execute();
+                                runes.remove(rune);
+                            }
+                        }
+                    }
+                },
+                0,
+                1,
+                TimeUnit.SECONDS
+        );
     }
 
     public void draw() {
-        new Thread(() -> updateScene()).start();
+//        new Thread(() -> updateScene()).start();
+        exec2.scheduleAtFixedRate(
+                () -> updateScene(),
+                0,
+                200,
+                TimeUnit.MILLISECONDS
+        );
     }
 
     private void updateScene() {
@@ -141,8 +167,8 @@ public class GameSolution extends Game {
             setCellValueEx(
                     animal.getCoordinates().x(),
                     animal.getCoordinates().y(),
-                    getHealthColor(animal.getHealth()), //эту строчку нужно заменить на color
-//                    color,
+//                    getHealthColor(animal.getHealth()), //эту строчку нужно заменить на color
+                    color,
                     animal.getImage(),
                     Color.AQUA,
                     90
@@ -201,7 +227,21 @@ public class GameSolution extends Game {
         };
     }
 
-    private final ScheduledExecutorService exec =
+    private final ScheduledExecutorService exec1 =
+            Executors.newSingleThreadScheduledExecutor(runnable -> {
+                Thread thread = new Thread(runnable, "bot-scheduler");
+                thread.setDaemon(true);
+                return thread;
+            });
+
+    private final ScheduledExecutorService exec2 =
+            Executors.newSingleThreadScheduledExecutor(runnable -> {
+                Thread thread = new Thread(runnable, "bot-scheduler");
+                thread.setDaemon(true);
+                return thread;
+            });
+
+    private final ScheduledExecutorService exec3 =
             Executors.newSingleThreadScheduledExecutor(runnable -> {
                 Thread thread = new Thread(runnable, "bot-scheduler");
                 thread.setDaemon(true);
@@ -209,7 +249,7 @@ public class GameSolution extends Game {
             });
 
     public void startRunesExecute() {
-        exec.scheduleAtFixedRate(
+        exec1.scheduleAtFixedRate(
                 runeFabric.updateListRunes(),
                 0,
                 10,

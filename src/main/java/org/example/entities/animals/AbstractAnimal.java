@@ -1,9 +1,6 @@
 package org.example.entities.animals;
 
 import org.example.models.Coordinates;
-import org.example.models.Gender;
-
-import java.util.concurrent.ThreadLocalRandom;
 
 
 public abstract class AbstractAnimal {
@@ -11,14 +8,12 @@ public abstract class AbstractAnimal {
     private int health;
     private int powerAttack;
     private String image;
-    private Gender gender;
     private int countPossibleChildren;
 
     public AbstractAnimal(int health, int powerAttack, String image) {
         this.health = health;
         this.powerAttack = powerAttack;
         this.image = image;
-        gender = Gender.values()[ThreadLocalRandom.current().nextInt(2)];
         countPossibleChildren = 3;
     }
 
@@ -52,10 +47,6 @@ public abstract class AbstractAnimal {
 
     public void setImage(String image) {
         this.image = image;
-    }
-
-    public Gender getGender() {
-        return gender;
     }
 
     public int getCountPossibleChildren() {
