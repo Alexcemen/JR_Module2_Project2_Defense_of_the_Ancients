@@ -83,14 +83,4 @@ public class AnimalsFabric {
         }
         return coordinatesSet;
     }
-
-    private Coordinates pollOne(Set<Coordinates> coordinatesSet) {
-        Iterator<Coordinates> iterator = coordinatesSet.iterator();
-        if (iterator.hasNext()) {
-            Coordinates coordinates = iterator.next();
-            iterator.remove();
-            return coordinates;
-        }
-        throw new NoSuchElementException("Set is empty — nothing to poll!");
-    }
 }

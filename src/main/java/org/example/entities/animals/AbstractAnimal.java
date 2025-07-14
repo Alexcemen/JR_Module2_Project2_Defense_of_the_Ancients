@@ -8,8 +8,8 @@ public abstract class AbstractAnimal {
     private Coordinates coordinates;
     private int health;
     private int powerAttack;
-    private String image;
-    private Faction faction;
+    private final String image;
+    private final Faction faction;
 
     public AbstractAnimal(int health, int powerAttack, String image, Faction faction) {
         this.health = health;

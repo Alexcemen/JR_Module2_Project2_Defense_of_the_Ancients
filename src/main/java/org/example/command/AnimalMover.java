@@ -10,8 +10,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class AnimalMover {
 
-    private Config config;
-    private List<AbstractAnimal> animals;
+    private final Config config;
+    private final List<AbstractAnimal> animals;
 
     public AnimalMover(Config config, List<AbstractAnimal> animals) {
         this.config = config;
@@ -48,27 +48,14 @@ public class AnimalMover {
     }
 
     private Boolean isCorrectCoordinates(Coordinates coordinates) {
-        if (coordinates.x() < 0
-                || coordinates.x() >= config.sideField
-                || coordinates.y() < 0
-                || coordinates.y() >= config.sideField
-        ) {
-            return false;
-        } else {
-            return true;
-        }
+        return coordinates.x() >= 0
+                && coordinates.x() < config.sideField
+                && coordinates.y() >= 0
+                && coordinates.y() < config.sideField;
     }
 
     private Boolean isCellEmpty(Coordinates coordinates) {
         return animals.stream()
                 .noneMatch(animal -> animal.getCoordinates().equals(coordinates));
-    }
-
-    private Boolean isSameCoordinates(Coordinates currentCoordinates, Coordinates newCoordinates) {
-        if (currentCoordinates == newCoordinates) {
-            return true;
-        } else {
-            return false;
-        }
     }
 }

@@ -21,14 +21,4 @@ public class ValueCells {
         valueCells[x][y].setColor(color);
         valueCells[x][y].setValue(value);
     }
-
-    public ValueCell getValueCell(Coordinates coordinates) {
-        int x = coordinates.x();
-        int y = coordinates.y();
-        return valueCells[x][y];
-    }
-
-    public ValueCell[][] getValueCells() {
-        return valueCells;
-    }
 }

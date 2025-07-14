@@ -94,7 +94,7 @@ public class GameSolution extends Game {
 
     public void complete() {
         startRunesExecute.cancel(true);
-        startRunesExecute.cancel(true);
+        startAnimalsExecute.cancel(true);
         startDrawExecute.cancel(true);
     }
 

@@ -9,18 +9,15 @@ import org.example.models.RuneEffect;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class RuneFabric {
 
-    //каждые 10 секунд создавать новые руны
-
     private List<AbstractRune> runes;
     private Coordinates coordinates1;
     private Coordinates coordinates2;
-    private Config config;
-    private List<AbstractAnimal> animals;
+    private final Config config;
+    private final List<AbstractAnimal> animals;
 
     public RuneFabric(Config config, List<AbstractAnimal> animals) {
         this.config = config;
