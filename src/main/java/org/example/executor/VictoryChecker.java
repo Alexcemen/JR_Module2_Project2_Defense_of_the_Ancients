@@ -4,44 +4,39 @@ import com.javarush.engine.cell.Color;
 import org.example.app.GameSolution;
 import org.example.config.Config;
 import org.example.entities.animals.AbstractAnimal;
-import org.example.fabrics.ExecutorsFabric;
 import org.example.models.Faction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-public class VictoryChecker {
+public class VictoryChecker implements MyExecutor {
     private final static Logger log = LoggerFactory.getLogger(VictoryChecker.class);
     private final List<AbstractAnimal> animals;
-    private final ExecutorsFabric executorsFabric;
     private final GameSolution gameSolution;
-    private final ScheduledFuture runesLogicExecutor;
-    private final ScheduledFuture animalLogicExecutor;
-    private final ScheduledFuture drawLogicExecutor;
     private final Config config;
+    private final List<MyExecutor> executors;
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledFuture<?> future;
 
     public VictoryChecker(List<AbstractAnimal> animals,
-                          ExecutorsFabric executorsFabric,
                           GameSolution gameSolution,
-                          ScheduledFuture runesLogicExecutor,
-                          ScheduledFuture animalLogicExecutor,
-                          ScheduledFuture drawLogicExecutor,
-                          Config config) {
+                          Config config,
+                          List<MyExecutor> executors) {
         this.animals = animals;
-        this.executorsFabric = executorsFabric;
         this.gameSolution = gameSolution;
-        this.runesLogicExecutor = runesLogicExecutor;
-        this.animalLogicExecutor = animalLogicExecutor;
-        this.drawLogicExecutor = drawLogicExecutor;
         this.config = config;
+        this.executors = executors;
     }
 
-    public void startVictoryChecker() {
+    @Override
+    public void start() {
         log.info("⚙️ Запущен цикл проверки победителей");
-        executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
+        this.future = executor.scheduleAtFixedRate(
                 () -> {
                     int radiantAnimalsCount = 0;
                     int direAnimalsCount = 0;
@@ -56,11 +51,11 @@ public class VictoryChecker {
                     if (radiantAnimalsCount == 0) {
                         log.info("🏴 Победа Dire — все Radiant уничтожены");
                         gameSolution.showMessageDialog(Color.BLACK, "Dire Victory!", Color.WHITE, 90);
-                        shutdownGameExecutors();
+                        stop();
                     } else if (direAnimalsCount == 0) {
                         log.info("🟩 Победа Radiant — все Dire уничтожены");
                         gameSolution.showMessageDialog(Color.BLACK, "Radiant Victory!", Color.WHITE, 90);
-                        shutdownGameExecutors();
+                        stop();
                     }
                 },
                 0,
@@ -69,9 +64,14 @@ public class VictoryChecker {
         );
     }
 
-    private void shutdownGameExecutors() {
-        runesLogicExecutor.cancel(true);
-        animalLogicExecutor.cancel(true);
-        drawLogicExecutor.cancel(true);
+    @Override
+    public void stop() {
+        log.info("⛔ Завершаю игру и все процессы");
+        executors.forEach(MyExecutor::stop);
+        if (future != null && !future.isCancelled()) {
+            future.cancel(true);
+            log.info("❌ Остановка VictoryChecker");
+        }
+        executor.shutdownNow();
     }
 }

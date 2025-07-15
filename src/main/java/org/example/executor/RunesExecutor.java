@@ -1,31 +1,32 @@
 package org.example.executor;
 
 import org.example.config.Config;
-import org.example.fabrics.ExecutorsFabric;
 import org.example.fabrics.RuneFabric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-public class RunesExecutor {
+public class RunesExecutor implements MyExecutor {
     private final static Logger log = LoggerFactory.getLogger(RunesExecutor.class);
-    private final ExecutorsFabric executorsFabric;
     private final RuneFabric runeFabric;
     private final Config config;
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledFuture<?> future;
 
-    public RunesExecutor(ExecutorsFabric executorsFabric,
-                         RuneFabric runeFabric,
+    public RunesExecutor(RuneFabric runeFabric,
                          Config config) {
-        this.executorsFabric = executorsFabric;
         this.runeFabric = runeFabric;
         this.config = config;
     }
 
-    public ScheduledFuture scheduleRunesProcessor() {
+    @Override
+    public void start() {
         log.info("⚙️ Запущен цикл обновления рун на поле");
-        return executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
+        this.future = executor.scheduleAtFixedRate(
                 () -> {
                     log.info("✨ Обновление списка рун");
                     runeFabric.updateListRunes().run();
@@ -33,5 +34,14 @@ public class RunesExecutor {
                 0,
                 config.runesTick,
                 TimeUnit.SECONDS);
+    }
+
+    @Override
+    public void stop() {
+        if (future != null && !future.isCancelled()) {
+            future.cancel(true);
+            log.info("❌ Остановка обновления рун");
+        }
+        executor.shutdownNow();
     }
 }

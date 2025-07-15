@@ -5,41 +5,41 @@ import org.example.command.AnimalMover;
 import org.example.config.Config;
 import org.example.entities.animals.AbstractAnimal;
 import org.example.entities.runes.AbstractRune;
-import org.example.fabrics.ExecutorsFabric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-public class AnimalsExecutor {
+public class AnimalsExecutor implements MyExecutor {
     private final static Logger log = LoggerFactory.getLogger(AnimalsExecutor.class);
-    private final ExecutorsFabric executorsFabric;
     private final List<AbstractAnimal> animals;
     private final List<AbstractRune> runes;
     private final Config config;
     private final AnimalMover animalMover;
     private final AnimalAttacker animalAttacker;
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledFuture<?> future;
 
 
-    public AnimalsExecutor(ExecutorsFabric executorsFabric,
-                           List<AbstractAnimal> animals,
+    public AnimalsExecutor(List<AbstractAnimal> animals,
                            List<AbstractRune> runes,
                            Config config) {
-        this.executorsFabric = executorsFabric;
         this.animals = animals;
         this.runes = runes;
         this.config = config;
         this.animalMover = new AnimalMover(config, animals);
         this.animalAttacker = new AnimalAttacker(animals);
-
     }
 
-    public ScheduledFuture scheduleAnimalProcessor() {
+    @Override
+    public void start() {
         log.info("⚙️ Запущен цикл движения животных и взаимодействия с рунами");
-        return executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
+        this.future = executor.scheduleAtFixedRate(
                 () -> {
                     for (AbstractAnimal animal : animals) {
                         animalMover.move(animal);
@@ -67,5 +67,14 @@ public class AnimalsExecutor {
                 log.info("🔥 Руна {} удалена после активации", rune.getClass().getSimpleName());
             }
         }
+    }
+
+    @Override
+    public void stop() {
+        if (future != null && !future.isCancelled()) {
+            future.cancel(true);
+            log.info("❌ Остановлен цикл движения животных");
+        }
+        executor.shutdownNow();
     }
 }

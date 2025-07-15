@@ -5,39 +5,40 @@ import org.example.app.GameSolution;
 import org.example.config.Config;
 import org.example.entities.animals.AbstractAnimal;
 import org.example.entities.runes.AbstractRune;
-import org.example.fabrics.ExecutorsFabric;
 import org.example.models.Faction;
 import org.example.util.Field;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-public class DrawExecutor {
+public class DrawExecutor implements MyExecutor {
     private final static Logger log = LoggerFactory.getLogger(DrawExecutor.class);
-    private final ExecutorsFabric executorsFabric;
     private final GameSolution gameSolution;
     private final List<AbstractAnimal> animals;
     private final List<AbstractRune> runes;
     private final Config config;
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledFuture<?> future;
 
-    public DrawExecutor(ExecutorsFabric executorsFabric,
-                        GameSolution gameSolution,
+    public DrawExecutor(GameSolution gameSolution,
                         List<AbstractAnimal> animals,
                         List<AbstractRune> runes,
                         Config config) {
-        this.executorsFabric = executorsFabric;
         this.gameSolution = gameSolution;
         this.animals = animals;
         this.runes = runes;
         this.config = config;
     }
 
-    public ScheduledFuture scheduleDrawProcessor() {
+    @Override
+    public void start() {
         log.info("🗺️ Запущена отрисовка карты и элементов поля");
-        return executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
+        this.future = executor.scheduleAtFixedRate(
                 this::drawScene,
                 0,
                 config.drawTick,
@@ -130,5 +131,14 @@ public class DrawExecutor {
                 default -> Color.DARKOLIVEGREEN;
             };
         }
+    }
+
+    @Override
+    public void stop() {
+        if (future != null && !future.isCancelled()) {
+            future.cancel(true);
+            log.info("❌ Остановка отрисовки поля");
+        }
+        executor.shutdownNow();
     }
 }
