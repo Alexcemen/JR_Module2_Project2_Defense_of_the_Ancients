@@ -10,7 +10,6 @@ public enum Direction {
     BOTTOM_LEFT,
     BOTTOM_RIGHT;
 
-
     public static Direction getDirection(int number) {
         return Direction.values()[number];
     }

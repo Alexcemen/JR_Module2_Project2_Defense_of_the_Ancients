@@ -19,22 +19,22 @@ public class AnimalsExecutor {
     private final ExecutorsFabric executorsFabric;
     private final List<AbstractAnimal> animals;
     private final List<AbstractRune> runes;
+    private final Config config;
     private final AnimalMover animalMover;
     private final AnimalAttacker animalAttacker;
-    private final Config config;
+
 
     public AnimalsExecutor(ExecutorsFabric executorsFabric,
                            List<AbstractAnimal> animals,
                            List<AbstractRune> runes,
-                           AnimalMover animalMover,
-                           AnimalAttacker animalAttacker,
                            Config config) {
         this.executorsFabric = executorsFabric;
         this.animals = animals;
         this.runes = runes;
-        this.animalMover = animalMover;
-        this.animalAttacker = animalAttacker;
         this.config = config;
+        this.animalMover = new AnimalMover(config, animals);
+        this.animalAttacker = new AnimalAttacker(animals);
+
     }
 
     public ScheduledFuture scheduleAnimalProcessor() {
@@ -47,7 +47,6 @@ public class AnimalsExecutor {
                         checkRunes(animal);
                     }
                 },
-
                 0,
                 config.animalMoveTick,
                 TimeUnit.MILLISECONDS

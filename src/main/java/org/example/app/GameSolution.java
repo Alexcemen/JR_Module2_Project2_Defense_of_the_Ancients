@@ -1,8 +1,6 @@
 package org.example.app;
 
 import com.javarush.engine.cell.Game;
-import org.example.command.AnimalAttacker;
-import org.example.command.AnimalMover;
 import org.example.entities.runes.AbstractRune;
 import org.example.executor.AnimalsExecutor;
 import org.example.executor.DrawExecutor;
@@ -29,13 +27,10 @@ public class GameSolution extends Game {
     public void initialize() {
         Config config = Config.load();
         //Field
-        int SIDE = config.sideField;
-        setScreenSize(SIDE, SIDE);
+        setScreenSize(config.sideField, config.sideField);
         //Animals
         AnimalsFabric animalsFabric = new AnimalsFabric(config);
         List<AbstractAnimal> animals = animalsFabric.getAnimalsList();
-        AnimalMover animalMover = new AnimalMover(config, animals);
-        AnimalAttacker animalAttacker = new AnimalAttacker(animals);
         //Runes
         RuneFabric runeFabric = new RuneFabric(config, animals);
         List<AbstractRune> runes = runeFabric.getRunes();
@@ -45,8 +40,6 @@ public class GameSolution extends Game {
                 executorsFabric,
                 animals,
                 runes,
-                animalMover,
-                animalAttacker,
                 config
         );
         runesExecutor = new RunesExecutor(
@@ -70,7 +63,6 @@ public class GameSolution extends Game {
                 drawLogicExecutor,
                 config
         );
-
         startGame();
     }
 
