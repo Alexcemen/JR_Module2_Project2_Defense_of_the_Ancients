@@ -2,6 +2,7 @@ package org.example.executor;
 
 import org.example.command.AnimalAttacker;
 import org.example.command.AnimalMover;
+import org.example.config.Config;
 import org.example.entities.animals.AbstractAnimal;
 import org.example.entities.runes.AbstractRune;
 import org.example.fabrics.ExecutorsFabric;
@@ -20,17 +21,20 @@ public class AnimalsExecutor {
     private final List<AbstractRune> runes;
     private final AnimalMover animalMover;
     private final AnimalAttacker animalAttacker;
+    private final Config config;
 
     public AnimalsExecutor(ExecutorsFabric executorsFabric,
                            List<AbstractAnimal> animals,
                            List<AbstractRune> runes,
                            AnimalMover animalMover,
-                           AnimalAttacker animalAttacker) {
+                           AnimalAttacker animalAttacker,
+                           Config config) {
         this.executorsFabric = executorsFabric;
         this.animals = animals;
         this.runes = runes;
         this.animalMover = animalMover;
         this.animalAttacker = animalAttacker;
+        this.config = config;
     }
 
     public ScheduledFuture scheduleAnimalProcessor() {
@@ -45,7 +49,7 @@ public class AnimalsExecutor {
                 },
 
                 0,
-                1000,
+                config.animalMoveTick,
                 TimeUnit.MILLISECONDS
         );
     }

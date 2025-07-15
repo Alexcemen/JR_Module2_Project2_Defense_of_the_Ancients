@@ -1,5 +1,6 @@
 package org.example.executor;
 
+import org.example.config.Config;
 import org.example.fabrics.ExecutorsFabric;
 import org.example.fabrics.RuneFabric;
 import org.slf4j.Logger;
@@ -12,10 +13,14 @@ public class RunesExecutor {
     private final static Logger log = LoggerFactory.getLogger(RunesExecutor.class);
     private final ExecutorsFabric executorsFabric;
     private final RuneFabric runeFabric;
+    private final Config config;
 
-    public RunesExecutor(ExecutorsFabric executorsFabric, RuneFabric runeFabric) {
+    public RunesExecutor(ExecutorsFabric executorsFabric,
+                         RuneFabric runeFabric,
+                         Config config) {
         this.executorsFabric = executorsFabric;
         this.runeFabric = runeFabric;
+        this.config = config;
     }
 
     public ScheduledFuture scheduleRunesProcessor() {
@@ -26,7 +31,7 @@ public class RunesExecutor {
                     runeFabric.updateListRunes().run();
                 },
                 0,
-                10,
+                config.runesTick,
                 TimeUnit.SECONDS);
     }
 }

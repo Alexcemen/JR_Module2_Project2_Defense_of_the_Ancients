@@ -2,6 +2,7 @@ package org.example.executor;
 
 import com.javarush.engine.cell.Color;
 import org.example.app.GameSolution;
+import org.example.config.Config;
 import org.example.data.ValueCells;
 import org.example.entities.animals.AbstractAnimal;
 import org.example.entities.runes.AbstractRune;
@@ -23,19 +24,22 @@ public class DrawExecutor {
     private final List<AbstractRune> runes;
     private final int SIDE;
     private final ValueCells valueCells;
+    private final Config config;
 
     public DrawExecutor(ExecutorsFabric executorsFabric,
                         GameSolution gameSolution,
                         List<AbstractAnimal> animals,
                         List<AbstractRune> runes,
                         int SIDE,
-                        ValueCells valueCells) {
+                        ValueCells valueCells,
+                        Config config) {
         this.executorsFabric = executorsFabric;
         this.gameSolution = gameSolution;
         this.animals = animals;
         this.runes = runes;
         this.SIDE = SIDE;
         this.valueCells = valueCells;
+        this.config = config;
     }
 
     public ScheduledFuture scheduleDrawProcessor() {
@@ -43,7 +47,7 @@ public class DrawExecutor {
         return executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
                 this::drawScene,
                 0,
-                100,
+                config.drawTick,
                 TimeUnit.MILLISECONDS
         );
     }

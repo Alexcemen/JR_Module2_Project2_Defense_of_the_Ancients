@@ -49,11 +49,13 @@ public class GameSolution extends Game {
                 animals,
                 runes,
                 animalMover,
-                animalAttacker
+                animalAttacker,
+                config
         );
         runesExecutor = new RunesExecutor(
                 executorsFabric,
-                runeFabric
+                runeFabric,
+                config
         );
         drawExecutor = new DrawExecutor(
                 executorsFabric,
@@ -61,7 +63,8 @@ public class GameSolution extends Game {
                 animals,
                 runes,
                 SIDE,
-                valueCells
+                valueCells,
+                config
         );
         victoryChecker = new VictoryChecker(
                 animals,
@@ -69,7 +72,9 @@ public class GameSolution extends Game {
                 this,
                 runesLogicExecutor,
                 animalLogicExecutor,
-                drawLogicExecutor);
+                drawLogicExecutor,
+                config
+        );
 
         startGame();
     }

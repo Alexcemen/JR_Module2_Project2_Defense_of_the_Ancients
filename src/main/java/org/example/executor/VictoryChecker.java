@@ -2,6 +2,7 @@ package org.example.executor;
 
 import com.javarush.engine.cell.Color;
 import org.example.app.GameSolution;
+import org.example.config.Config;
 import org.example.entities.animals.AbstractAnimal;
 import org.example.fabrics.ExecutorsFabric;
 import org.example.models.Faction;
@@ -20,19 +21,22 @@ public class VictoryChecker {
     private final ScheduledFuture runesLogicExecutor;
     private final ScheduledFuture animalLogicExecutor;
     private final ScheduledFuture drawLogicExecutor;
+    private final Config config;
 
     public VictoryChecker(List<AbstractAnimal> animals,
                           ExecutorsFabric executorsFabric,
                           GameSolution gameSolution,
                           ScheduledFuture runesLogicExecutor,
                           ScheduledFuture animalLogicExecutor,
-                          ScheduledFuture drawLogicExecutor) {
+                          ScheduledFuture drawLogicExecutor,
+                          Config config) {
         this.animals = animals;
         this.executorsFabric = executorsFabric;
         this.gameSolution = gameSolution;
         this.runesLogicExecutor = runesLogicExecutor;
         this.animalLogicExecutor = animalLogicExecutor;
         this.drawLogicExecutor = drawLogicExecutor;
+        this.config = config;
     }
 
     public void startVictoryChecker() {
@@ -60,7 +64,7 @@ public class VictoryChecker {
                     }
                 },
                 0,
-                50,
+                config.checkVictoryTick,
                 TimeUnit.MILLISECONDS
         );
     }

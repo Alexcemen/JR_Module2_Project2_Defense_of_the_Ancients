@@ -20,6 +20,10 @@ public class Config {
     public final int healingRuneExecute;
     public final int poisonRuneExecute;
     public final int powerAttackRuneExecute;
+    public final int animalMoveTick;
+    public final int drawTick;
+    public final int runesTick;
+    public final int checkVictoryTick;
 
     private Config(Properties props) {
         this.bearImage = props.getProperty("bear_image");
@@ -37,6 +41,10 @@ public class Config {
         this.healingRuneExecute = Integer.parseInt(props.getProperty("healing_rune_execute"));
         this.poisonRuneExecute = Integer.parseInt(props.getProperty("poison_rune_execute"));
         this.powerAttackRuneExecute = Integer.parseInt(props.getProperty("power_attack_rune_execute"));
+        this.animalMoveTick = Integer.parseInt(props.getProperty("animal_move_tick"));
+        this.drawTick = Integer.parseInt(props.getProperty("draw_tick"));
+        this.runesTick = Integer.parseInt(props.getProperty("runes_tick"));
+        this.checkVictoryTick = Integer.parseInt(props.getProperty("check_victory_tick"));
     }
 
     public static Config load() {
