@@ -17,12 +17,12 @@ import java.util.concurrent.TimeUnit;
 
 public class DrawExecutor {
     private final static Logger log = LoggerFactory.getLogger(DrawExecutor.class);
-    private ExecutorsFabric executorsFabric;
-    private GameSolution gameSolution;
-    private List<AbstractAnimal> animals;
-    private List<AbstractRune> runes;
-    private int SIDE;
-    private ValueCells valueCells;
+    private final ExecutorsFabric executorsFabric;
+    private final GameSolution gameSolution;
+    private final List<AbstractAnimal> animals;
+    private final List<AbstractRune> runes;
+    private final int SIDE;
+    private final ValueCells valueCells;
 
     public DrawExecutor(ExecutorsFabric executorsFabric,
                         GameSolution gameSolution,

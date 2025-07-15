@@ -3,7 +3,7 @@ package org.example.util;
 import com.javarush.engine.cell.Color;
 
 public class Field {
-    private static Color[][] map = new Color[][]{
+    private static final Color[][] map = new Color[][]{
             //1
             {
                     Color.DARKSLATEGRAY, Color.DARKSLATEGRAY, Color.DARKSLATEGRAY, Color.DARKSLATEGRAY, Color.DARKSLATEGRAY,

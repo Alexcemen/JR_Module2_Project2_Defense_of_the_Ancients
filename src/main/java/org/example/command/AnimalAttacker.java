@@ -34,7 +34,7 @@ public class AnimalAttacker {
             for (int j = -1; j < 1; j++) {
                 if (i == 0 && j == 0) continue;
                 Coordinates coordinatesTarget = new Coordinates(currentX + i, currentY + j);
-                AbstractAnimal animalTarget = findAnimal(coordinatesTarget, animals);
+                AbstractAnimal animalTarget = findTarget(coordinatesTarget, animals);
                 if (animalTarget != null && !animalTarget.getFaction().equals(animal.getFaction())) {
                     targets.add(animalTarget);
                 }
@@ -43,7 +43,7 @@ public class AnimalAttacker {
         return targets;
     }
 
-    private AbstractAnimal findAnimal(Coordinates neighboringCellCoordinate, List<AbstractAnimal> animals) {
+    private AbstractAnimal findTarget(Coordinates neighboringCellCoordinate, List<AbstractAnimal> animals) {
         return animals.stream()
                 .filter(animal -> animal.getCoordinates().equals(neighboringCellCoordinate))
                 .findFirst()

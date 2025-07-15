@@ -76,5 +76,4 @@ public class RuneFabric {
         int numberRandomRuneEffect = ThreadLocalRandom.current().nextInt(countRuneEffects);
         return RuneEffect.values()[numberRandomRuneEffect];
     }
-
 }

@@ -6,7 +6,7 @@ import org.example.models.Coordinates;
 
 public abstract class AbstractRune {
     private Coordinates coordinates;
-    private String image;
+    private final String image;
     private AbstractAnimal animal;
     private Config config;
 
@@ -30,10 +30,6 @@ public abstract class AbstractRune {
 
     public String getImage() {
         return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
     }
 
     public AbstractAnimal getAnimal() {
