@@ -1,4 +1,4 @@
-package org.example;
+package org.example.app;
 
 
 import com.javarush.engine.cell.Color;
@@ -35,9 +35,9 @@ public class GameSolution extends Game {
     private List<AbstractRune> runes;
     private ExecutorsFabric executorsFabric;
 
-    private ScheduledFuture startRunesExecute;
-    private ScheduledFuture startAnimalsExecute;
-    private ScheduledFuture startDrawExecute;
+    private ScheduledFuture runesLogicExecutor;
+    private ScheduledFuture animalLogicExecutor;
+    private ScheduledFuture drawLogicExecutor;
 
     @Override
     public void initialize() {
@@ -56,13 +56,13 @@ public class GameSolution extends Game {
     }
 
     public void startGame() {
-        startRunesExecute = startRunesExecute();
-        startAnimalsExecute = startAnimals();
-        startDrawExecute = startDraw();
-        checker();
+        runesLogicExecutor = scheduleRunesProcessor();
+        animalLogicExecutor = scheduleAnimalProcessor();
+        drawLogicExecutor = scheduleDrawProcessor();
+        startVictoryChecker();
     }
 
-    public void checker() {
+    public void startVictoryChecker() {
         log.info("⚙️ Запущен цикл проверки победителей");
         executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
                 () -> {
@@ -79,11 +79,11 @@ public class GameSolution extends Game {
                     if (radiantAnimalsCount == 0) {
                         log.info("🏴 Победа Dire — все Radiant уничтожены");
                         showMessageDialog(Color.BLACK, "Dire Victory!", Color.WHITE, 90);
-                        complete();
+                        shutdownGameExecutors();
                     } else if (direAnimalsCount == 0) {
                         log.info("🟩 Победа Radiant — все Dire уничтожены");
                         showMessageDialog(Color.BLACK, "Radiant Victory!", Color.WHITE, 90);
-                        complete();
+                        shutdownGameExecutors();
                     }
                 },
                 0,
@@ -92,42 +92,46 @@ public class GameSolution extends Game {
         );
     }
 
-    public void complete() {
-        startRunesExecute.cancel(true);
-        startAnimalsExecute.cancel(true);
-        startDrawExecute.cancel(true);
+    public void shutdownGameExecutors() {
+        runesLogicExecutor.cancel(true);
+        animalLogicExecutor.cancel(true);
+        drawLogicExecutor.cancel(true);
     }
 
-    public ScheduledFuture startAnimals() {
+    public ScheduledFuture scheduleAnimalProcessor() {
         log.info("⚙️ Запущен цикл движения животных и взаимодействия с рунами");
         return executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
                 () -> {
                     for (AbstractAnimal animal : animalsList) {
                         animalMover.move(animal);
                         animalAttacker.attack(animal);
-
-                        Iterator<AbstractRune> iterator = runes.iterator();
-                        while (iterator.hasNext()) {
-                            AbstractRune rune = iterator.next();
-                            if (animal.getCoordinates().equals(rune.getCoordinates())) {
-                                log.info("⚡ Обнаружена руна {} на координатах {} — активируется",
-                                        rune.getClass().getSimpleName(),
-                                        rune.getCoordinates());
-                                rune.setAnimal(animal);
-                                rune.execute();
-                                iterator.remove();
-                                log.info("🔥 Руна {} удалена после активации", rune.getClass().getSimpleName());
-                            }
-                        }
+                        checkRunes(animal);
                     }
                 },
+
                 0,
                 1000,
                 TimeUnit.MILLISECONDS
         );
     }
 
-    public ScheduledFuture startDraw() {
+    private void checkRunes(AbstractAnimal animal) {
+        Iterator<AbstractRune> iterator = runes.iterator();
+        while (iterator.hasNext()) {
+            AbstractRune rune = iterator.next();
+            if (animal.getCoordinates().equals(rune.getCoordinates())) {
+                log.info("⚡ Обнаружена руна {} на координатах {} — активируется",
+                        rune.getClass().getSimpleName(),
+                        rune.getCoordinates());
+                rune.setAnimal(animal);
+                rune.execute();
+                iterator.remove();
+                log.info("🔥 Руна {} удалена после активации", rune.getClass().getSimpleName());
+            }
+        }
+    }
+
+    public ScheduledFuture scheduleDrawProcessor() {
         log.info("🗺️ Запущена отрисовка карты и элементов поля");
         return executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
                 this::drawScene,
@@ -137,7 +141,7 @@ public class GameSolution extends Game {
         );
     }
 
-    public ScheduledFuture startRunesExecute() {
+    public ScheduledFuture scheduleRunesProcessor() {
         log.info("⚙️ Запущен цикл обновления рун на поле");
         return executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
                 () -> {
