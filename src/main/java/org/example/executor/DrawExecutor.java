@@ -108,26 +108,28 @@ public class DrawExecutor implements MyExecutor {
         int group = health / 10;
         if (animal.getFaction() == Faction.RADIANT) {
             return switch (group) {
-                case 9 -> Color.GREENYELLOW;
-                case 8 -> Color.YELLOWGREEN;
-                case 7 -> Color.YELLOW;
-                case 6 -> Color.GOLD;
-                case 5 -> Color.ORANGE;
-                case 4 -> Color.DARKORANGE;
-                case 3 -> Color.ORANGERED;
-                case 2 -> Color.CRIMSON;
+                case 9 -> Color.LAWNGREEN;
+                case 8 -> Color.GREENYELLOW;
+                case 7 -> Color.YELLOWGREEN;
+                case 6 -> Color.YELLOW;
+                case 5 -> Color.GOLD;
+                case 4 -> Color.ORANGE;
+                case 3 -> Color.DARKORANGE;
+                case 2 -> Color.ORANGERED;
+                case 1 -> Color.CRIMSON;
                 default -> Color.LIME;
             };
         } else {
             return switch (group) {
-                case 9 -> Color.DARKSEAGREEN;
-                case 8 -> Color.OLIVEDRAB;
-                case 7 -> Color.GOLDENROD;
-                case 6 -> Color.DARKGOLDENROD;
-                case 5 -> Color.PERU;
-                case 4 -> Color.FIREBRICK;
-                case 3 -> Color.DARKRED;
-                case 2 -> Color.MAROON;
+                case 9 -> Color.FORESTGREEN;
+                case 8 -> Color.DARKSEAGREEN;
+                case 7 -> Color.OLIVEDRAB;
+                case 6 -> Color.GOLDENROD;
+                case 5 -> Color.DARKGOLDENROD;
+                case 4 -> Color.PERU;
+                case 3 -> Color.FIREBRICK;
+                case 2 -> Color.DARKRED;
+                case 1 -> Color.MAROON;
                 default -> Color.DARKOLIVEGREEN;
             };
         }
