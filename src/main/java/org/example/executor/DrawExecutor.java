@@ -3,7 +3,6 @@ package org.example.executor;
 import com.javarush.engine.cell.Color;
 import org.example.app.GameSolution;
 import org.example.config.Config;
-import org.example.data.ValueCells;
 import org.example.entities.animals.AbstractAnimal;
 import org.example.entities.runes.AbstractRune;
 import org.example.fabrics.ExecutorsFabric;
@@ -22,23 +21,17 @@ public class DrawExecutor {
     private final GameSolution gameSolution;
     private final List<AbstractAnimal> animals;
     private final List<AbstractRune> runes;
-    private final int SIDE;
-    private final ValueCells valueCells;
     private final Config config;
 
     public DrawExecutor(ExecutorsFabric executorsFabric,
                         GameSolution gameSolution,
                         List<AbstractAnimal> animals,
                         List<AbstractRune> runes,
-                        int SIDE,
-                        ValueCells valueCells,
                         Config config) {
         this.executorsFabric = executorsFabric;
         this.gameSolution = gameSolution;
         this.animals = animals;
         this.runes = runes;
-        this.SIDE = SIDE;
-        this.valueCells = valueCells;
         this.config = config;
     }
 
@@ -56,7 +49,6 @@ public class DrawExecutor {
         drawMap();
         updateRunesOnField();
         updateAnimalsOnField();
-        updateValueCellsArray();
     }
 
     private void drawMap() {
@@ -108,16 +100,6 @@ public class DrawExecutor {
                     90
             );
         });
-    }
-
-    private void updateValueCellsArray() {
-        for (int x = 0; x < SIDE; x++) {
-            for (int y = 0; y < SIDE; y++) {
-                Color cellColor = gameSolution.getCellColor(x, y);
-                String cellValue = gameSolution.getCellValue(x, y);
-                valueCells.updateValueCell(x, y, cellColor, cellValue);
-            }
-        }
     }
 
     private Color getHealthColor(AbstractAnimal animal) {

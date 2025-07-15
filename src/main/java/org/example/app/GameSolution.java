@@ -10,7 +10,6 @@ import org.example.executor.RunesExecutor;
 import org.example.executor.VictoryChecker;
 import org.example.fabrics.AnimalsFabric;
 import org.example.config.Config;
-import org.example.data.ValueCells;
 import org.example.entities.animals.*;
 import org.example.fabrics.ExecutorsFabric;
 import org.example.fabrics.RuneFabric;
@@ -40,8 +39,6 @@ public class GameSolution extends Game {
         //Runes
         RuneFabric runeFabric = new RuneFabric(config, animals);
         List<AbstractRune> runes = runeFabric.getRunes();
-        //Draw
-        ValueCells valueCells = new ValueCells(config);
         //Executors
         ExecutorsFabric executorsFabric = new ExecutorsFabric();
         animalsExecutor = new AnimalsExecutor(
@@ -62,8 +59,6 @@ public class GameSolution extends Game {
                 this,
                 animals,
                 runes,
-                SIDE,
-                valueCells,
                 config
         );
         victoryChecker = new VictoryChecker(
