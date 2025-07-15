@@ -9,6 +9,7 @@ import org.example.entities.runes.AbstractRune;
 import org.example.executor.AnimalsExecutor;
 import org.example.executor.DrawExecutor;
 import org.example.executor.RunesExecutor;
+import org.example.executor.VictoryChecker;
 import org.example.fabrics.AnimalsFabric;
 import org.example.config.Config;
 import org.example.data.ValueCells;
@@ -39,6 +40,7 @@ public class GameSolution extends Game {
     private AnimalsExecutor animalsExecutor;
     private RunesExecutor runesExecutor;
     private DrawExecutor drawExecutor;
+    private VictoryChecker victoryChecker;
 
     private ScheduledFuture runesLogicExecutor;
     private ScheduledFuture animalLogicExecutor;
@@ -60,55 +62,14 @@ public class GameSolution extends Game {
         animalsExecutor = new AnimalsExecutor(executorsFabric, animals, runes, animalMover, animalAttacker);
         runesExecutor = new RunesExecutor(executorsFabric, runeFabric);
         drawExecutor = new DrawExecutor(executorsFabric, this, animals, runes, SIDE, valueCells);
+        victoryChecker = new VictoryChecker(animals, executorsFabric, this, runesLogicExecutor, animalLogicExecutor, drawLogicExecutor);
         startGame();
     }
 
-    public void startGame() {
+    private void startGame() {
         runesLogicExecutor = runesExecutor.scheduleRunesProcessor();
         animalLogicExecutor = animalsExecutor.scheduleAnimalProcessor();
         drawLogicExecutor = drawExecutor.scheduleDrawProcessor();
-        startVictoryChecker();
+        victoryChecker.startVictoryChecker();
     }
-
-    public void startVictoryChecker() {
-        log.info("⚙️ Запущен цикл проверки победителей");
-        executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
-                () -> {
-                    int radiantAnimalsCount = 0;
-                    int direAnimalsCount = 0;
-                    for (AbstractAnimal abstractAnimal : animals) {
-                        if (abstractAnimal.getFaction() == Faction.RADIANT) {
-                            radiantAnimalsCount++;
-                        } else {
-                            direAnimalsCount++;
-                        }
-                    }
-                    log.info("🐺 Radiant: {} | 🐉 Dire: {}", radiantAnimalsCount, direAnimalsCount);
-                    if (radiantAnimalsCount == 0) {
-                        log.info("🏴 Победа Dire — все Radiant уничтожены");
-                        showMessageDialog(Color.BLACK, "Dire Victory!", Color.WHITE, 90);
-                        shutdownGameExecutors();
-                    } else if (direAnimalsCount == 0) {
-                        log.info("🟩 Победа Radiant — все Dire уничтожены");
-                        showMessageDialog(Color.BLACK, "Radiant Victory!", Color.WHITE, 90);
-                        shutdownGameExecutors();
-                    }
-                },
-                0,
-                50,
-                TimeUnit.MILLISECONDS
-        );
-    }
-
-    public void shutdownGameExecutors() {
-        runesLogicExecutor.cancel(true);
-        animalLogicExecutor.cancel(true);
-        drawLogicExecutor.cancel(true);
-    }
-
-
-
-
-
-
 }
