@@ -7,6 +7,7 @@ import org.example.command.AnimalAttacker;
 import org.example.command.AnimalMover;
 import org.example.entities.runes.AbstractRune;
 import org.example.executor.AnimalsExecutor;
+import org.example.executor.RunesExecutor;
 import org.example.fabrics.AnimalsFabric;
 import org.example.config.Config;
 import org.example.data.ValueCells;
@@ -35,6 +36,7 @@ public class GameSolution extends Game {
     private List<AbstractRune> runes;
     private ExecutorsFabric executorsFabric;
     private AnimalsExecutor animalsExecutor;
+    private RunesExecutor runesExecutor;
 
     private ScheduledFuture runesLogicExecutor;
     private ScheduledFuture animalLogicExecutor;
@@ -54,11 +56,12 @@ public class GameSolution extends Game {
         runes = runeFabric.getRunes();
         setScreenSize(SIDE, SIDE);
         animalsExecutor = new AnimalsExecutor(executorsFabric, animals, runes, animalMover, animalAttacker);
+        runesExecutor = new RunesExecutor(executorsFabric, runeFabric);
         startGame();
     }
 
     public void startGame() {
-        runesLogicExecutor = scheduleRunesProcessor();
+        runesLogicExecutor = runesExecutor.scheduleRunesProcessor();
         animalLogicExecutor = animalsExecutor.scheduleAnimalProcessor();
         drawLogicExecutor = scheduleDrawProcessor();
         startVictoryChecker();
@@ -114,17 +117,7 @@ public class GameSolution extends Game {
         );
     }
 
-    public ScheduledFuture scheduleRunesProcessor() {
-        log.info("⚙️ Запущен цикл обновления рун на поле");
-        return executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
-                () -> {
-                    log.info("✨ Обновление списка рун");
-                    runeFabric.updateListRunes().run();
-                },
-                0,
-                10,
-                TimeUnit.SECONDS);
-    }
+
 
     private void drawScene() {
         drawMap();
