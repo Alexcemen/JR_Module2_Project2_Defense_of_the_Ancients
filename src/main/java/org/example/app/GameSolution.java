@@ -6,6 +6,7 @@ import com.javarush.engine.cell.Game;
 import org.example.command.AnimalAttacker;
 import org.example.command.AnimalMover;
 import org.example.entities.runes.AbstractRune;
+import org.example.executor.AnimalsExecutor;
 import org.example.fabrics.AnimalsFabric;
 import org.example.config.Config;
 import org.example.data.ValueCells;
@@ -33,6 +34,7 @@ public class GameSolution extends Game {
     private RuneFabric runeFabric;
     private List<AbstractRune> runes;
     private ExecutorsFabric executorsFabric;
+    private AnimalsExecutor animalsExecutor;
 
     private ScheduledFuture runesLogicExecutor;
     private ScheduledFuture animalLogicExecutor;
@@ -51,12 +53,13 @@ public class GameSolution extends Game {
         executorsFabric = new ExecutorsFabric();
         runes = runeFabric.getRunes();
         setScreenSize(SIDE, SIDE);
+        animalsExecutor = new AnimalsExecutor(executorsFabric, animals, runes, animalMover, animalAttacker);
         startGame();
     }
 
     public void startGame() {
         runesLogicExecutor = scheduleRunesProcessor();
-        animalLogicExecutor = scheduleAnimalProcessor();
+        animalLogicExecutor = animalsExecutor.scheduleAnimalProcessor();
         drawLogicExecutor = scheduleDrawProcessor();
         startVictoryChecker();
     }
