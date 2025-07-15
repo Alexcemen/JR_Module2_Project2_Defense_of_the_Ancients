@@ -17,7 +17,6 @@ import org.example.util.Field;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -27,7 +26,7 @@ public class GameSolution extends Game {
     private int SIDE;
     private Config config;
     private AnimalsFabric animalsFabric;
-    private List<AbstractAnimal> animalsList;
+    private List<AbstractAnimal> animals;
     private AnimalMover animalMover;
     private AnimalAttacker animalAttacker;
     private ValueCells valueCells;
@@ -44,11 +43,11 @@ public class GameSolution extends Game {
         config = Config.load();
         SIDE = config.sideField;
         animalsFabric = new AnimalsFabric(config);
-        animalsList = animalsFabric.getAnimalsList();
-        animalMover = new AnimalMover(config, animalsList);
-        animalAttacker = new AnimalAttacker(animalsList);
+        animals = animalsFabric.getAnimalsList();
+        animalMover = new AnimalMover(config, animals);
+        animalAttacker = new AnimalAttacker(animals);
         valueCells = new ValueCells(config);
-        runeFabric = new RuneFabric(config, animalsList);
+        runeFabric = new RuneFabric(config, animals);
         executorsFabric = new ExecutorsFabric();
         runes = runeFabric.getRunes();
         setScreenSize(SIDE, SIDE);
@@ -68,7 +67,7 @@ public class GameSolution extends Game {
                 () -> {
                     int radiantAnimalsCount = 0;
                     int direAnimalsCount = 0;
-                    for (AbstractAnimal abstractAnimal : animalsList) {
+                    for (AbstractAnimal abstractAnimal : animals) {
                         if (abstractAnimal.getFaction() == Faction.RADIANT) {
                             radiantAnimalsCount++;
                         } else {
@@ -98,38 +97,9 @@ public class GameSolution extends Game {
         drawLogicExecutor.cancel(true);
     }
 
-    public ScheduledFuture scheduleAnimalProcessor() {
-        log.info("⚙️ Запущен цикл движения животных и взаимодействия с рунами");
-        return executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
-                () -> {
-                    for (AbstractAnimal animal : animalsList) {
-                        animalMover.move(animal);
-                        animalAttacker.attack(animal);
-                        checkRunes(animal);
-                    }
-                },
 
-                0,
-                1000,
-                TimeUnit.MILLISECONDS
-        );
-    }
 
-    private void checkRunes(AbstractAnimal animal) {
-        Iterator<AbstractRune> iterator = runes.iterator();
-        while (iterator.hasNext()) {
-            AbstractRune rune = iterator.next();
-            if (animal.getCoordinates().equals(rune.getCoordinates())) {
-                log.info("⚡ Обнаружена руна {} на координатах {} — активируется",
-                        rune.getClass().getSimpleName(),
-                        rune.getCoordinates());
-                rune.setAnimal(animal);
-                rune.execute();
-                iterator.remove();
-                log.info("🔥 Руна {} удалена после активации", rune.getClass().getSimpleName());
-            }
-        }
-    }
+
 
     public ScheduledFuture scheduleDrawProcessor() {
         log.info("🗺️ Запущена отрисовка карты и элементов поля");
@@ -187,7 +157,7 @@ public class GameSolution extends Game {
 
 
     private void updateAnimalsOnField() {
-        animalsList.forEach(animal -> {
+        animals.forEach(animal -> {
             setCellValueEx(
                     animal.getCoordinates().x(),
                     animal.getCoordinates().y(),
