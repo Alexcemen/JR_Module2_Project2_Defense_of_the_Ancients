@@ -7,6 +7,7 @@ import org.example.command.AnimalAttacker;
 import org.example.command.AnimalMover;
 import org.example.entities.runes.AbstractRune;
 import org.example.executor.AnimalsExecutor;
+import org.example.executor.DrawExecutor;
 import org.example.executor.RunesExecutor;
 import org.example.fabrics.AnimalsFabric;
 import org.example.config.Config;
@@ -37,6 +38,7 @@ public class GameSolution extends Game {
     private ExecutorsFabric executorsFabric;
     private AnimalsExecutor animalsExecutor;
     private RunesExecutor runesExecutor;
+    private DrawExecutor drawExecutor;
 
     private ScheduledFuture runesLogicExecutor;
     private ScheduledFuture animalLogicExecutor;
@@ -57,13 +59,14 @@ public class GameSolution extends Game {
         setScreenSize(SIDE, SIDE);
         animalsExecutor = new AnimalsExecutor(executorsFabric, animals, runes, animalMover, animalAttacker);
         runesExecutor = new RunesExecutor(executorsFabric, runeFabric);
+        drawExecutor = new DrawExecutor(executorsFabric, this, animals, runes, SIDE, valueCells);
         startGame();
     }
 
     public void startGame() {
         runesLogicExecutor = runesExecutor.scheduleRunesProcessor();
         animalLogicExecutor = animalsExecutor.scheduleAnimalProcessor();
-        drawLogicExecutor = scheduleDrawProcessor();
+        drawLogicExecutor = drawExecutor.scheduleDrawProcessor();
         startVictoryChecker();
     }
 
@@ -107,114 +110,5 @@ public class GameSolution extends Game {
 
 
 
-    public ScheduledFuture scheduleDrawProcessor() {
-        log.info("🗺️ Запущена отрисовка карты и элементов поля");
-        return executorsFabric.getSingleThreadScheduledExecutor().scheduleAtFixedRate(
-                this::drawScene,
-                0,
-                100,
-                TimeUnit.MILLISECONDS
-        );
-    }
 
-
-
-    private void drawScene() {
-        drawMap();
-        updateRunesOnField();
-        updateAnimalsOnField();
-        updateValueCellsArray();
-    }
-
-    private void drawMap() {
-        Color[][] map = Field.getMap();
-        for (int y = 0; y < map.length; y++) {
-            for (int x = 0; x < map[y].length; x++) {
-                String value = "";
-                if (map[y][x] == Color.DARKOLIVEGREEN) {
-                    value = "\uD83C\uDF33";
-                } else if (map[y][x] == Color.DARKSLATEGRAY) {
-                    value = "\uD83C\uDF32";
-                }
-                setCellValueEx(x, y, map[y][x], value);
-            }
-        }
-        setCellValue(0, 19, "\uD83C\uDFF0");//база radiant
-        setCellValue(19, 0, "\uD83C\uDFEF");//база dark
-        setCellValue(4, 8, "\uD83C\uDFD5");//палатка
-        setCellValue(16, 12, "\uD83C\uDFD5");
-
-        for (int y = 0; y < map.length; y++) {
-            for (int x = 0; x < map[y].length; x++) {
-                setCellTextSize(x, y, 90);
-            }
-        }
-    }
-
-
-    private void updateAnimalsOnField() {
-        animals.forEach(animal -> {
-            setCellValueEx(
-                    animal.getCoordinates().x(),
-                    animal.getCoordinates().y(),
-                    getHealthColor(animal),
-                    animal.getImage(),
-                    Color.AQUA,
-                    90
-            );
-        });
-    }
-
-    private void updateRunesOnField() {
-        runes.forEach(rune -> {
-            setCellValueEx(
-                    rune.getCoordinates().x(),
-                    rune.getCoordinates().y(),
-                    Color.DARKCYAN,
-                    rune.getImage(),
-                    Color.AQUA,
-                    90
-            );
-        });
-    }
-
-    private void updateValueCellsArray() {
-        for (int x = 0; x < SIDE; x++) {
-            for (int y = 0; y < SIDE; y++) {
-                Color cellColor = getCellColor(x, y);
-                String cellValue = getCellValue(x, y);
-                valueCells.updateValueCell(x, y, cellColor, cellValue);
-            }
-        }
-    }
-
-    private Color getHealthColor(AbstractAnimal animal) {
-        int health = animal.getHealth();
-        int group = health / 10;
-        if (animal.getFaction() == Faction.RADIANT) {
-            return switch (group) {
-                case 9 -> Color.GREENYELLOW;
-                case 8 -> Color.YELLOWGREEN;
-                case 7 -> Color.YELLOW;
-                case 6 -> Color.GOLD;
-                case 5 -> Color.ORANGE;
-                case 4 -> Color.DARKORANGE;
-                case 3 -> Color.ORANGERED;
-                case 2 -> Color.CRIMSON;
-                default -> Color.LIME;
-            };
-        } else {
-            return switch (group) {
-                case 9 -> Color.DARKSEAGREEN;
-                case 8 -> Color.OLIVEDRAB;
-                case 7 -> Color.GOLDENROD;
-                case 6 -> Color.DARKGOLDENROD;
-                case 5 -> Color.PERU;
-                case 4 -> Color.FIREBRICK;
-                case 3 -> Color.DARKRED;
-                case 2 -> Color.MAROON;
-                default -> Color.DARKOLIVEGREEN;
-            };
-        }
-    }
 }
