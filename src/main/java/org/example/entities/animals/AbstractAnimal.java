@@ -5,7 +5,7 @@ import org.example.models.Faction;
 
 
 public abstract class AbstractAnimal {
-    private Coordinates coordinates;
+    private volatile Coordinates coordinates;
     private int health;
     private int powerAttack;
     private final String image;
