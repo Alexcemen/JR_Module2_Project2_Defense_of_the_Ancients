@@ -4,12 +4,15 @@ import org.example.config.Config;
 import org.example.entities.animals.AbstractAnimal;
 import org.example.models.Coordinates;
 import org.example.models.Direction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class AnimalMover {
 
+    private static final Logger log = LoggerFactory.getLogger(AnimalMover.class);
     private final Config config;
     private final List<AbstractAnimal> animals;
 
@@ -24,6 +27,7 @@ public class AnimalMover {
             newCoordinates = getNewCoordinates(animal.getCoordinates());
         } while (!isCorrectCoordinates(newCoordinates) || !isCellEmpty(newCoordinates));
         animal.setCoordinates(newCoordinates);
+//        log.info("Animal " + animal + " пошел. Поток: " + Thread.currentThread().getName());
     }
 
     private Coordinates getNewCoordinates(Coordinates currentCoordinates) {

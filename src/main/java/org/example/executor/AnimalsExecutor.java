@@ -10,10 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class AnimalsExecutor implements MyExecutor {
     private final static Logger log = LoggerFactory.getLogger(AnimalsExecutor.class);
@@ -22,7 +19,8 @@ public class AnimalsExecutor implements MyExecutor {
     private final Config config;
     private final AnimalMover animalMover;
     private final AnimalAttacker animalAttacker;
-    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService scheduled = Executors.newSingleThreadScheduledExecutor();
+    private final ExecutorService executor = Executors.newWorkStealingPool();
     private ScheduledFuture<?> future;
 
 
@@ -39,12 +37,14 @@ public class AnimalsExecutor implements MyExecutor {
     @Override
     public void start() {
         log.info("⚙️ Запущен цикл движения животных и взаимодействия с рунами");
-        this.future = executor.scheduleAtFixedRate(
+        this.future = scheduled.scheduleAtFixedRate(
                 () -> {
                     for (AbstractAnimal animal : animals) {
-                        animalMover.move(animal);
-                        animalAttacker.attack(animal);
-                        checkRunes(animal);
+                        executor.submit(() -> {
+                            animalMover.move(animal);
+                            animalAttacker.attack(animal);
+                            checkRunes(animal);
+                        });
                     }
                 },
                 0,
@@ -75,6 +75,7 @@ public class AnimalsExecutor implements MyExecutor {
             future.cancel(true);
             log.info("❌ Остановлен цикл движения животных");
         }
+        scheduled.shutdownNow();
         executor.shutdownNow();
     }
 }
