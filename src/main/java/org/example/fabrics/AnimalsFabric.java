@@ -39,7 +39,7 @@ public class AnimalsFabric {
 
     private List<AbstractAnimal> getRadiantAnimals() {
         List<AbstractAnimal> animals = new CopyOnWriteArrayList<>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < config.startCountAnimals / 2; i++) {
             AbstractAnimal randomAnimal = getRandomAnimal(Faction.RADIANT);
             animals.add(randomAnimal);
         }
@@ -48,7 +48,7 @@ public class AnimalsFabric {
 
     private List<AbstractAnimal> getDireAnimals() {
         List<AbstractAnimal> animals = new CopyOnWriteArrayList<>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < config.startCountAnimals / 2; i++) {
             AbstractAnimal randomAnimal = getRandomAnimal(Faction.DIRE);
             animals.add(randomAnimal);
         }
